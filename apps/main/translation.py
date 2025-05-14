@@ -1,7 +1,10 @@
-from modeltranslation.translator import TranslationOptions, register
-from . import models
+from modeltranslation.translator import translator, TranslationOptions
+from .models import School
 
 
-@register(models.News)
-class NewsTranslationOptions(TranslationOptions):
-    fields = ("title", "content")
+class SchoolTranslationOptions(TranslationOptions):
+    fields = ('name', 'description', 'short_description', 'address')
+    required_languages = ('uz',)
+
+
+translator.register(School, SchoolTranslationOptions)

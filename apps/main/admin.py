@@ -1,11 +1,20 @@
 from django.contrib import admin
-from utils.admin import AdminTranslation
-
+from apps.utils.admin import DescriptionMixin, AdminTranslation
+from mptt.admin import DraggableMPTTAdmin
 from . import models
 
 
-class NewsAdmin(AdminTranslation):
-    list_display = ("title", "created_at", "updated_at")
+@admin.register(models.MenuItem)
+class MenuItemAdmin(DraggableMPTTAdmin):
+    
+    class Media:
+        css = {
+            "screen": ("css/admin_menu.css",),
+        }
 
 
-admin.site.register(models.News, NewsAdmin)
+@admin.register(models.School)
+class SchoolAdmin(DescriptionMixin, AdminTranslation):
+    list_display = ('name', 'domain', 'created_at', 'updated_at')
+    search_fields = ('name', 'domain')
+    list_filter = ('created_at', 'updated_at')

@@ -199,3 +199,7 @@ pnpm-debug.log*
 *.sln
 *.sw?
 .env_air
+
+
+media/
+*.dtmp

@@ -17,5 +17,5 @@ REST_FRAMEWORK = {
         'anon': '20/second',
         'user': '20/second',
     },
-    'EXCEPTION_HANDLER': 'apps.common.utils.custom_exception_handler',
+    'EXCEPTION_HANDLER': 'apps.utils.rest_framework.custom_exception_handler',
 }

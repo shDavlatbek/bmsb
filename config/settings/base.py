@@ -36,14 +36,17 @@ DJANGO_APPS = [
 MY_APPS = [
     'apps.main',
     'apps.common',
+    'apps.utils',
 ]
 
 
 THIRD_APPS = [
+    'mptt',
     'rest_framework',
     'drf_yasg',
     'corsheaders',
     'django_filters',
+    'tinymce',
 ]
 
 
@@ -123,6 +126,13 @@ from .rest_framework import *
 from .jazzmin import *
 
 
+#######################################################
+# --------------------- TINYMCE --------------------- #
+#######################################################
+
+from .tinymce import *
+
+    
 ####################################################
 # --------------------- I18N --------------------- #
 ####################################################
