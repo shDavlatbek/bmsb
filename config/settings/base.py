@@ -47,6 +47,9 @@ THIRD_APPS = [
     'corsheaders',
     'django_filters',
     'tinymce',
+    
+    
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 
