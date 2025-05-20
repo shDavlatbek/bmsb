@@ -14,9 +14,8 @@ urlpatterns = [
 ]   
 
 urlpatterns += [
-    path('api/v1/', include('apps.main.urls')),
-    path('api/v1/', include('apps.common.urls')),
-    path('utils/', include('apps.utils.urls')),
+    path('api/', include('apps.main.urls')),
+    path('api/', include('apps.common.urls')),
 ]
 
 urlpatterns += swagger_urlpatterns

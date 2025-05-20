@@ -1,4 +1,8 @@
+import environ
 from pathlib import Path
+
+env = environ.Env()
+env.read_env('.env')
 
 #######################################################
 # --------------------- GENERAL --------------------- #
@@ -6,7 +10,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = 'k&1br3-c+++fu6lcjyhhsz5pk2rpl$ll-=xe98+*r6-$yl1cl('
+SECRET_KEY = env.str('SECRET_KEY')
 
 DEBUG = True
 
@@ -20,6 +24,7 @@ ALLOWED_HOSTS = ['*']
 PRIORITY_APPS = [
     'jazzmin',
     'modeltranslation',
+    'apps.main',
 ]
 
 
@@ -34,9 +39,10 @@ DJANGO_APPS = [
 
 
 MY_APPS = [
-    'apps.main',
     'apps.common',
-    'apps.utils',
+    'apps.media',
+    'apps.resource',
+    'apps.user',
 ]
 
 
@@ -58,6 +64,9 @@ INSTALLED_APPS = PRIORITY_APPS + DJANGO_APPS + MY_APPS + THIRD_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    
+    'apps.main.middleware.SubdomainMiddleware',
+    
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -186,6 +195,15 @@ STATICFILES_DIRS = (BASE_DIR / 'assets',)
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+#################################################################
+# --------------------- IMPORTANT SETTINGS -------------------- #
+#################################################################
+
+AUTH_USER_MODEL = 'user.User'
+
+AUTH_GROUP_MODEL = 'auth.Group'
 
 
 #############################################################

@@ -1,11 +1,71 @@
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
-from apps.utils.base_model import BaseModel
-from apps.utils.mixins import SlugifyMixin
+from apps.common.mixins import SlugifyMixin
 from tinymce.models import HTMLField
+from django.utils.safestring import mark_safe
+
+from apps.common.models import BaseModel
+
+    
+    
+class School(SlugifyMixin, BaseModel):
+    domain = models.SlugField(unique=True, verbose_name="Subdomen")
+    name = models.CharField(max_length=255, verbose_name="Nomi")
+    slug = models.SlugField(unique=True, verbose_name="Slug")
+    description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
+    short_description = HTMLField(null=True, blank=True, verbose_name="Qisqacha tafsilot")
+    founded_year = models.SmallIntegerField(null=True, blank=True, verbose_name="Ishga tushgan yili")
+    capacity = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'quvchilar sig'imi")
+    student_count = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'quvchilar soni")
+    teacher_count = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'qituvchilar soni")
+    direction_count = models.PositiveIntegerField(null=True, blank=True, verbose_name="Yo'nalishlar soni")
+    class_count = models.PositiveIntegerField(null=True, blank=True, verbose_name="Sinflar soni")
+    email = models.EmailField(null=True, blank=True, verbose_name="Email")
+    phone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name="Telefon raqami")
+    address = models.CharField(max_length=255, null=True, blank=True, verbose_name="Manzil")
+    latitude = models.DecimalField(max_digits=10, decimal_places=8, null=True, blank=True, verbose_name="Latitude")
+    longitude = models.DecimalField(max_digits=10, decimal_places=8, null=True, blank=True, verbose_name="Longitude")
+    instagram_link = models.URLField(null=True, blank=True, verbose_name="Instagram link")
+    telegram_link = models.URLField(null=True, blank=True, verbose_name="Telegram link")
+    facebook_link = models.URLField(null=True, blank=True, verbose_name="Facebook link")
+    youtube_link = models.URLField(null=True, blank=True, verbose_name="Youtube link")
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "Maktab"
+        verbose_name_plural = "Maktablar"
 
 
-class MenuItem(MPTTModel):
+class SchoolLife(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        verbose_name="Maktab",
+        related_name="school_lives",
+    )
+    
+    image = models.ImageField(upload_to="school_lives/", verbose_name="Rasm")
+    title = models.CharField(max_length=255, verbose_name="Sarlavha")
+    description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
+    
+    def image_tag(self):
+        return mark_safe(f'<img src="{self.image.url}" style="height: 50px; object-fit: cover;" />')
+    
+    def __str__(self):
+        return self.title
+    
+    class Meta:
+        verbose_name = "Maktab hayoti"
+        verbose_name_plural = "Maktab hayoti"
+
+
+class Menu(MPTTModel):
+    school = models.ForeignKey(
+        'School', on_delete=models.CASCADE,
+        null=True, blank=True,
+    )
+    
     title = models.CharField(max_length=120)
     parent = TreeForeignKey(
         "self",
@@ -13,7 +73,7 @@ class MenuItem(MPTTModel):
         related_name="children",
         on_delete=models.CASCADE,
     )
-    url = models.CharField(max_length=120)
+    url = models.CharField(max_length=255)
     
     class MPTTMeta:
         order_insertion_by = ("title",)
@@ -24,29 +84,31 @@ class MenuItem(MPTTModel):
     def __str__(self):
         return self.title
     
+    class Meta:
+        verbose_name = "Menu"
+        verbose_name_plural = "Menu"
+
+
+class Banner(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="banners",
+    )
     
-class School(SlugifyMixin, BaseModel):
-    domain = models.SlugField(unique=True)
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True)
-    description = HTMLField()
-    short_description = HTMLField()
-    founded_year = models.SmallIntegerField()
-    capacity = models.IntegerField()
-    student_count = models.IntegerField()
-    teacher_count = models.IntegerField()
-    direction_count = models.IntegerField()
-    class_count = models.IntegerField()
-    email = models.EmailField()
-    phone_number = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
-    latitude = models.DecimalField(max_digits=10, decimal_places=8)
-    longitude = models.DecimalField(max_digits=10, decimal_places=8)
-    instagram_link = models.URLField()
-    telegram_link = models.URLField()
-    facebook_link = models.URLField()
-    youtube_link = models.URLField()
+    image = models.ImageField(upload_to="banners/", verbose_name="Rasm")
+    title = models.CharField(max_length=255, verbose_name="Sarlavha")
+    button_text = models.CharField(max_length=255, null=True, blank=True, verbose_name="Tugma matni")
+    link = models.URLField(null=True, blank=True, verbose_name="Havola")
     
     
+    def __str__(self):
+        return self.title
     
+    def image_tag(self):
+        return mark_safe(f'<img src="{self.image.url}" style="height: 50px; object-fit: cover;" />')
     
+    class Meta:
+        verbose_name = "Banner"
+        verbose_name_plural = "Bannerlar"
