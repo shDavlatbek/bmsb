@@ -41,6 +41,7 @@ class School(SlugifyMixin, BaseModel):
 class SchoolLife(BaseModel):
     school = models.ForeignKey(
         School, on_delete=models.CASCADE,
+        null=True, blank=True,
         verbose_name="Maktab",
         related_name="school_lives",
     )

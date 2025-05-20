@@ -32,10 +32,10 @@ JAZZMIN_SETTINGS: dict = {
     # Links to put along the top menu
     'topmenu_links': [
         # Url that gets reversed (Permissions can be added)
-        {
-            'name': 'Parolni o\'zgartirish',
-            'url': 'admin:password_change',
-        },
+        # {
+        #     'name': 'Parolni o\'zgartirish',
+        #     'url': 'admin:password_change',
+        # },
         # external url that opens in a new window (Permissions can be added)
         # {'name': 'Support', 'url': 'https://github.com/farridav/django-jazzmin/issues', 'new_window': True},
     ],
@@ -57,7 +57,7 @@ JAZZMIN_SETTINGS: dict = {
     'hide_models': [],
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
 
-    "order_with_respect_to": ["auth", "user", "main", "main.school", "main.menu", "main.banner" ],
+    "order_with_respect_to": ["auth", "user", "main", "main.school", "main.menu", "main.banner", "main.schoollife" ],
     # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.10,5.0.11,5.0.12,5.0.13,5.0.2,5.0.3,5.0.4,5.0.5,5.0.6,5.0.7,5.0.8,5.0.9,5.1.0,5.1.1,5.2.0,5.3.0,5.3.1,5.4.0,5.4.1,5.4.2,5.13.0,5.12.0,5.11.2,5.11.1,5.10.0,5.9.0,5.8.2,5.8.1,5.7.2,5.7.1,5.7.0,5.6.3,5.5.0,5.4.2
     # for the full list of 5.13.0 free icon classes
     'icons': {
@@ -67,6 +67,7 @@ JAZZMIN_SETTINGS: dict = {
         'main.menu': 'fas fa-grip-lines',
         'auth.Group': 'fas fa-duotone fa-users',
         'main.banner': 'fas fa-duotone fa-image',
+        'main.schoollife': 'fas fa-book-medical',
         # 'artist.Category': 'fas fa-grip-lines',
         # 'artist.Artist': 'fas fa-users',
         # 'artist.Project': 'fas fa-vote-yea',

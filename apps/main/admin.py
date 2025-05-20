@@ -37,7 +37,7 @@ class SchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
     def get_readonly_fields(self, request, obj=None):
         ro = list(super().get_readonly_fields(request, obj))
         if not request.user.is_superuser:
-            ro += ["domain", "is_active"]
+            ro += ["domain"]
         return ro
 
     def has_add_permission(self, request):
@@ -63,11 +63,8 @@ class BannerAdmin(SchoolAdminMixin, AdminTranslation):
 
 
 @admin.register(models.SchoolLife)
-class SchoolLifeAdmin(SchoolAdminMixin, AdminTranslation):
+class SchoolLifeAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
     list_display = ('image_tag', 'title', 'school', 'created_at', 'updated_at')
     search_fields = ('title',)
     list_filter = ('school', 'created_at', 'updated_at')
     list_display_links = ('image_tag', 'title')
-    fieldsets = (
-        ("Asosiy", {"fields": ("is_active", "school", "title", "image", "description")}),
-    )

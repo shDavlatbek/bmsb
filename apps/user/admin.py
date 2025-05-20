@@ -84,6 +84,17 @@ class CustomUserAdmin(UserAdmin):
             return True
         return False
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(username=request.user.username)
+    
+    def get_readonly_fields(self, request, obj=None):
+        if request.user.is_superuser:
+            return ()
+        return ('school', 'is_staff', 'groups', 'is_active', 'is_superuser', 'username')
+    
     def has_add_permission(self, request):
         return request.user.is_superuser
 
