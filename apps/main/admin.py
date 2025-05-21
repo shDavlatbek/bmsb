@@ -19,9 +19,9 @@ class MenuAdmin(SchoolAdminMixin, AdminTranslation, DraggableMPTTAdmin):
 
 @admin.register(models.School)
 class SchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
-    list_display = ('name', 'domain', 'created_at', 'updated_at')
+    list_display = ('name', 'domain', 'is_active')
     search_fields = ('name', 'domain')
-    list_filter = ('created_at', 'updated_at')
+    list_filter = ('is_active',)
     fieldsets = (
         ("Asosiy 📌",
             {"fields": ("is_active", "domain", "name", "slug", "description", "short_description")}
@@ -56,15 +56,15 @@ class SchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
 
 @admin.register(models.Banner)
 class BannerAdmin(SchoolAdminMixin, AdminTranslation):
-    list_display = ('image_tag', 'title', 'created_at', 'updated_at')
+    list_display = ('image_tag', 'title', 'is_active')
     search_fields = ('title',)
-    list_filter = ('created_at', 'updated_at')
+    list_filter = ('is_active',)
     list_display_links = ('image_tag', 'title')
 
 
 @admin.register(models.SchoolLife)
 class SchoolLifeAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
-    list_display = ('image_tag', 'title', 'school', 'created_at', 'updated_at')
+    list_display = ('image_tag', 'title', 'school', 'is_active')
     search_fields = ('title',)
-    list_filter = ('school', 'created_at', 'updated_at')
+    list_filter = ('school', 'is_active',)
     list_display_links = ('image_tag', 'title')
