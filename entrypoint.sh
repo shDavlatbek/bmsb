@@ -33,7 +33,7 @@ echo "Applying database migrations..."
 python manage.py migrate
 
 # Check if superuser exists before creating one
-if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ] && [ -n "$DJANGO_SUPERUSER_EMAIL" ]; then
+if [ -n "$DJANGO_SUPERUSER_USERNAME" ] && [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
   echo "Checking if superuser exists..."
   python << END
 import django
@@ -42,7 +42,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username='${DJANGO_SUPERUSER_USERNAME}').exists():
     print("Creating superuser...")
-    User.objects.create_superuser('${DJANGO_SUPERUSER_USERNAME}', '${DJANGO_SUPERUSER_EMAIL}', '${DJANGO_SUPERUSER_PASSWORD}')
+    User.objects.create_superuser('${DJANGO_SUPERUSER_USERNAME}', '', '${DJANGO_SUPERUSER_PASSWORD}')
     print("Superuser created!")
 else:
     print("Superuser already exists!")

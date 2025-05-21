@@ -2,14 +2,15 @@ version: '3.8'
 
 services:
   web:
+    container_name: bmsb-backend
     build: .
     restart: always
     depends_on:
       db:
         condition: service_healthy
     volumes:
-      - static_volume:/app/static
-      - media_volume:/app/media
+      - ./static:/app/static
+      - ./media:/app/media
     env_file:
       - .env
     environment:
@@ -28,25 +29,25 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_NAME}
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  nginx:
-    image: nginx:alpine
-    restart: always
-    depends_on:
-      - web
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - static_volume:/app/static
-      - media_volume:/app/media
+  # nginx:
+  #   image: nginx:alpine
+  #   restart: always
+  #   depends_on:
+  #     - web
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx/conf.d:/etc/nginx/conf.d
+  #     - ./static:/app/static
+  #     - ./media:/app/media
 
 volumes:
   postgres_data:
