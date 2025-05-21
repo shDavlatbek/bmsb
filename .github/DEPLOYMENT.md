@@ -17,11 +17,14 @@ You need to set up the following secrets in your GitHub repository:
    - Add the public key to your server's `~/.ssh/authorized_keys`
    - Copy the entire private key including header/footer: `cat ~/.ssh/github_deploy`
 
-2. `SSH_USER`: Your username on the SSH server
+2. `SSH_KNOWN_HOSTS`: Your server's SSH fingerprint
+   - Get this by running: `ssh-keyscan -t rsa your-server-hostname`
 
-3. `SSH_HOST`: Your server's hostname or IP address
+3. `SSH_USER`: Your username on the SSH server
 
-4. `PROJECT_PATH`: The absolute path to your project on the server
+4. `SSH_HOST`: Your server's hostname or IP address
+
+5. `PROJECT_PATH`: The absolute path to your project on the server
 
 ## Manual Deployment
 
