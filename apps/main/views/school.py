@@ -1,8 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView
 from apps.common.mixins import IsActiveFilterMixin
-from apps.main.models import School
 from apps.main.serializers.school import SchoolSerializer
 
 
@@ -11,14 +10,14 @@ class CheckSchoolView(APIView):
         return Response({'school': request.school.slug if request.school else None})
 
 
-class SchoolListView(IsActiveFilterMixin, ListAPIView):
+class SchoolView(IsActiveFilterMixin, RetrieveAPIView):
     serializer_class = SchoolSerializer
-    queryset = School.objects.all()
     permission_classes = []
-
-
-class SchoolDetailView(IsActiveFilterMixin, RetrieveAPIView):
-    serializer_class = SchoolSerializer
-    queryset = School.objects.all()
-    permission_classes = []
-    lookup_field = 'slug'
+    filter_backends = []
+    
+    def get(self, request):
+        if not request.school and not request.subdomain:
+            return Response({'detail': None})
+        
+        serializer = SchoolSerializer(request.school)
+        return Response(serializer.data)

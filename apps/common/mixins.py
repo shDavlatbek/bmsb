@@ -56,10 +56,11 @@ class SlugifyMixin:
 
 class SchoolScopedMixin:
     school_field: str | None = "school"
+    return_all: bool = False
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if getattr(self.request, "school", None) and self.school_field:
+        if (getattr(self.request, "school", None) or not self.return_all) and self.school_field:
             return qs.filter(**{self.school_field: self.request.school})
         return qs
 
@@ -79,11 +80,11 @@ class SchoolScopedMixin:
         obj = super().get_object()
         req_school = getattr(self.request, "school", None)
 
-        if req_school and self.school_field:
+        if (req_school or not self.return_all) and self.school_field:
             if getattr(obj, f"{self.school_field}_id", None) != req_school.id:
                 raise exceptions.PermissionDenied("Forbidden for this tenant.")
 
-        elif req_school is not None and self.school_field is None:
+        elif req_school is not None and self.school_field is None and not self.return_all:
             if obj.pk != req_school.id:
                 raise exceptions.PermissionDenied("Forbidden for this tenant.")
 

@@ -1,3 +1,4 @@
+from apps.common.utils import compress
 import os
 import uuid
 from django.db import models
@@ -55,4 +56,8 @@ class TinyMCEImage(models.Model):
     def save(self, *args, **kwargs):
         if not self.title and self.image:
             self.title = os.path.basename(self.image.name)
+            
+        if self.image:
+            self.image = compress(self.image)
+        
         super().save(*args, **kwargs)

@@ -8,6 +8,7 @@ class MenuView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
     serializer_class = MenuSerializer
     pagination_class = None
     permission_classes = []         
+    filter_backends = []
     
     queryset = (
         Menu.objects.root_nodes()

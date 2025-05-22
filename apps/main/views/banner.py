@@ -9,3 +9,4 @@ class BannerListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
     queryset = Banner.objects.all()
     permission_classes = []
     pagination_class = None 
+    filter_backends = []

@@ -8,7 +8,7 @@ class MenuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = Menu
-        fields = ("title", "url", "children")   # add more fields if you need
+        fields = ('id', "title", "url", "children")   # add more fields if you need
 
     # resolves to get_absolute_url / "#" fallback we defined earlier
     def get_url(self, obj) -> str:

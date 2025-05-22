@@ -5,4 +5,4 @@ from apps.main.models import SchoolLife
 class SchoolLifeSerializer(serializers.ModelSerializer):
     class Meta:
         model = SchoolLife
-        fields = ['image', 'title', 'description'] 
+        fields = ['id', 'image', 'title', 'description'] 

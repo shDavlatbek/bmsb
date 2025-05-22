@@ -5,6 +5,8 @@ from tinymce.models import HTMLField
 from django.utils.safestring import mark_safe
 
 from apps.common.models import BaseModel
+from apps.common.utils import generate_upload_path
+from apps.common.validators import file_size
 
     
     
@@ -34,7 +36,7 @@ class School(SlugifyMixin, BaseModel):
         return self.name
     
     class Meta:
-        verbose_name = "Maktab"
+        verbose_name = "Maktab "
         verbose_name_plural = "Maktablar"
 
 
@@ -46,7 +48,8 @@ class SchoolLife(BaseModel):
         related_name="school_lives",
     )
     
-    image = models.ImageField(upload_to="school_lives/", verbose_name="Rasm")
+    image = models.ImageField(upload_to=generate_upload_path, verbose_name="Rasm", validators=[file_size], 
+                              help_text="Rasm 5 MB dan katta bo'lishi mumkin emas.")
     title = models.CharField(max_length=255, verbose_name="Sarlavha")
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
     
@@ -57,7 +60,7 @@ class SchoolLife(BaseModel):
         return self.title
     
     class Meta:
-        verbose_name = "Maktab hayoti"
+        verbose_name = "Maktab hayoti "
         verbose_name_plural = "Maktab hayoti"
 
 
@@ -86,7 +89,7 @@ class Menu(MPTTModel):
         return self.title
     
     class Meta:
-        verbose_name = "Menu"
+        verbose_name = "Menu "
         verbose_name_plural = "Menu"
 
 
@@ -98,7 +101,8 @@ class Banner(BaseModel):
         related_name="banners",
     )
     
-    image = models.ImageField(upload_to="banners/", verbose_name="Rasm")
+    image = models.ImageField(upload_to=generate_upload_path, verbose_name="Rasm", validators=[file_size], 
+                              help_text="Rasm 5 MB dan katta bo'lishi mumkin emas.")
     title = models.CharField(max_length=255, verbose_name="Sarlavha")
     button_text = models.CharField(max_length=255, null=True, blank=True, verbose_name="Tugma matni")
     link = models.URLField(null=True, blank=True, verbose_name="Havola")
@@ -111,5 +115,5 @@ class Banner(BaseModel):
         return mark_safe(f'<img src="{self.image.url}" style="height: 50px; object-fit: cover;" />')
     
     class Meta:
-        verbose_name = "Banner"
+        verbose_name = "Banner "
         verbose_name_plural = "Bannerlar"
