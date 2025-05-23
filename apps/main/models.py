@@ -77,7 +77,7 @@ class Menu(MPTTModel):
         related_name="children",
         on_delete=models.CASCADE,
     )
-    url = models.CharField(max_length=255)
+    url = models.CharField(max_length=255, null=True, blank=True)
     
     class MPTTMeta:
         order_insertion_by = ("title",)

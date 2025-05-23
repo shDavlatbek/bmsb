@@ -4,8 +4,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-STATIC_URL = "http://cdn.e-bmsm.uz/static/"
-MEDIA_URL  = "http://cdn.e-bmsm.uz/media/"
+STATIC_URL = 'http://cdn.e-bmsm.uz/static/'
+MEDIA_URL  = 'http://cdn.e-bmsm.uz/media/'
 
 DATABASES = {
     'default': {
@@ -22,4 +22,4 @@ DATABASES = {
 CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS')
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = env.list('CSRF_TRUSTED_ORIGINS')
-CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']

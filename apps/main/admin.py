@@ -10,11 +10,8 @@ from . import models
 class MenuAdmin(SchoolAdminMixin, AdminTranslation, DraggableMPTTAdmin):
     class Media:
         css = {
-            "screen": ("css/admin_menu.css",),
+            'screen': ('css/admin_menu.css',),
         }
-
-
-
 
 
 @admin.register(models.School)
@@ -23,12 +20,12 @@ class SchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
     search_fields = ('name', 'domain')
     list_filter = ('is_active',)
     fieldsets = (
-        ("Asosiy 📌",
-            {"fields": ("is_active", "domain", "name", "slug", "description", "short_description")}
+        ('Asosiy 📌',
+            {'fields': ('is_active', 'domain', 'name', 'slug', 'description', 'short_description')}
         ),
-        ("Raqamlar 📊", {"fields": ("founded_year", "capacity", "student_count", "teacher_count", "direction_count", "class_count")}),
-        ("Kontaktlar 📞", {"fields": ("email", "phone_number", "address", "latitude", "longitude")}),
-        ("Ijtimoiy tarmoqlar 🔗", {"fields": ("instagram_link", "telegram_link", "facebook_link", "youtube_link")}),
+        ('Raqamlar 📊', {'fields': ('founded_year', 'capacity', 'student_count', 'teacher_count', 'direction_count', 'class_count')}),
+        ('Kontaktlar 📞', {'fields': ('email', 'phone_number', 'address', 'latitude', 'longitude')}),
+        ('Ijtimoiy tarmoqlar 🔗', {'fields': ('instagram_link', 'telegram_link', 'facebook_link', 'youtube_link')}),
     )
     prepopulated_fields = {
         'slug': ('name',),
@@ -37,7 +34,7 @@ class SchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
     def get_readonly_fields(self, request, obj=None):
         ro = list(super().get_readonly_fields(request, obj))
         if not request.user.is_superuser:
-            ro += ["domain"]
+            ro += ['domain', 'is_active']
         return ro
 
     def has_add_permission(self, request):
@@ -64,7 +61,7 @@ class BannerAdmin(SchoolAdminMixin, AdminTranslation):
 
 @admin.register(models.SchoolLife)
 class SchoolLifeAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
-    list_display = ('image_tag', 'title', 'school', 'is_active')
+    list_display = ('image_tag', 'title', 'is_active')
     search_fields = ('title',)
-    list_filter = ('school', 'is_active',)
+    list_filter = ('is_active',)
     list_display_links = ('image_tag', 'title')
