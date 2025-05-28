@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements/base.txt /app/
 COPY requirements/prod.txt /app/
 RUN pip install --upgrade pip && \
-    pip install -r prod.txt
+    pip install -r /app/prod.txt --no-cache-dir
 
 # Create static and media directories if they don't exist
 RUN mkdir -p /app/static /app/media

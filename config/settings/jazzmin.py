@@ -111,9 +111,13 @@ JAZZMIN_SETTINGS: dict = {
     'changeform_format_overrides': {
         'auth.user': 'collapsible',
         'auth.group': 'vertical_tabs',
+        'media.mediaimage': 'vertical_tabs',
+        'media.mediavideo': 'vertical_tabs',
+        'media.mediacollection': 'single',
     },
+    
     # Add a language dropdown into the admin
-    # 'language_chooser': True,
+    'language_chooser': True,
 }
 
 # JAZZMIN_UI_TWEAKS: dict = {

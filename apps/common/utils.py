@@ -3,6 +3,7 @@ from django.core.files import File
 from PIL import Image
 from io import BytesIO
 from django.utils import timezone, dateformat
+from django.utils.text import slugify
 import os
 
 def split_file_name(filename):
@@ -10,15 +11,17 @@ def split_file_name(filename):
     return [''.join(filename.split('.')[:-1]), filename.split('.')[-1]]
 
 def generate_upload_path(instance, filename):
-    app_label = instance._meta.app_label
+    app_label  = instance._meta.app_label
     model_name = instance._meta.model_name
-    now = dateformat.format(timezone.now(), 'Y/m/d')
-    file, exc = split_file_name(filename)
+    now        = dateformat.format(timezone.now(), "Y/m/d")
 
-    filepath = '%s/%s/%s/%s.%s' % (
-        app_label, model_name, now, file, exc
-    )
-    return filepath
+    name, ext  = os.path.splitext(filename)
+    safe_name  = slugify(name, allow_unicode=False)
+
+    if not safe_name:
+        safe_name = "file"
+
+    return f"{app_label}/{model_name}/{now}/{safe_name}{ext.lower()}"
 
 def compress(image):
     if not image:

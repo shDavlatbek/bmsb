@@ -7,8 +7,7 @@ from apps.main.serializers.menu import MenuSerializer
 class MenuView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
     serializer_class = MenuSerializer
     pagination_class = None
-    permission_classes = []         
-    filter_backends = []
+    permission_classes = []
     
     queryset = (
         Menu.objects.root_nodes()

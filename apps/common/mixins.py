@@ -81,7 +81,7 @@ class SchoolScopedMixin:
         req_school = getattr(self.request, "school", None)
 
         if (req_school or not self.return_all) and self.school_field:
-            if getattr(obj, f"{self.school_field}_id", None) != req_school.id:
+            if getattr(obj, f"{self.school_field}_id", None) != getattr(req_school, 'id', None):
                 raise exceptions.PermissionDenied("Forbidden for this tenant.")
 
         elif req_school is not None and self.school_field is None and not self.return_all:
@@ -126,11 +126,23 @@ class SchoolAdminMixin:
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_readonly_fields(self, request, obj=None):
-        ro = list(super().get_readonly_fields(request, obj))
-        if (self._is_school_admin(request) or not self.return_all) and "school" in [f.name for f in self.model._meta.fields]:
-            ro.append("school")
-        return ro
+    
+    
+    def get_exclude(self, request, obj=None):
+        """
+        `school` FK’ni school-adminlarga (yoki return_all=False bo‘lsa)
+        formda ko‘rsatmaydi.
+        """
+        exclude = list(super().get_exclude(request, obj) or [])
+        if (self._is_school_admin(request) or not self.return_all) and "school" not in exclude:
+            exclude.append("school")
+        return exclude
+    
+    # def get_readonly_fields(self, request, obj=None):
+    #     ro = list(super().get_readonly_fields(request, obj))
+    #     if (self._is_school_admin(request) or not self.return_all) and "school" in [f.name for f in self.model._meta.fields]:
+    #         ro.append("school")
+    #     return ro
     
     def get_changeform_initial_data(self, request):
         if self._is_school_admin(request) and hasattr(self.model, "school"):

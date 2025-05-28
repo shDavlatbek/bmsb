@@ -13,7 +13,6 @@ class CheckSchoolView(APIView):
 class SchoolView(IsActiveFilterMixin, RetrieveAPIView):
     serializer_class = SchoolSerializer
     permission_classes = []
-    filter_backends = []
     
     def get(self, request):
         if not request.school and not request.subdomain:

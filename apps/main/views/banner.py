@@ -8,5 +8,4 @@ class BannerListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
     serializer_class = BannerSerializer
     queryset = Banner.objects.all()
     permission_classes = []
-    pagination_class = None 
-    filter_backends = []
+    pagination_class = None

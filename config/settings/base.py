@@ -43,6 +43,7 @@ MY_APPS = [
     'apps.media',
     'apps.resource',
     'apps.user',
+    'apps.news',
 ]
 
 
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -153,9 +155,11 @@ MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
 MODELTRANSLATION_LANGUAGES = ('uz', 'ru', 'en')
 MODELTRANSLATION_FALLBACK_LANGUAGES = ('uz', 'ru', 'en')
 
-MODELTRANSLATION_TRANSLATION_FILES = (
+MODELTRANSLATION_TRANSLATION_FILES = (    
     'apps.common.translation',
-    'apps.main.translation'
+    'apps.main.translation',
+    'apps.news.translation',
+    'apps.media.translation',
 )
 
 

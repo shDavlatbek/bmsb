@@ -3,8 +3,8 @@
 set -e
 
 # Apply database migrations
-echo "Applying database migrations..."
-python manage.py makemigrations main common media resource user
+# echo "Applying database migrations..."
+# python manage.py makemigrations main common media resource user
 
 # Apply database migrations
 echo "Applying database migrations..."

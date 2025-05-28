@@ -8,5 +8,3 @@ class SchoolLifeView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
     serializer_class = SchoolLifeSerializer
     queryset = SchoolLife.objects.all()
     pagination_class = None
-    permission_classes = []
-    filter_backends = []
