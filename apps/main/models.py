@@ -85,7 +85,7 @@ class Menu(MPTTModel):
     url = models.CharField(max_length=255, null=True, blank=True)
     
     class MPTTMeta:
-        order_insertion_by = ("title",)
+        order_insertion_by = ("id",)
 
     def get_absolute_url(self):
         return self.url
@@ -278,10 +278,11 @@ def create_school_defaults(sender, instance, created, **kwargs):
         # Save the instance with default values
         instance.save()
         
-        # Create hierarchical menu structure
-        # Main menu items with their children
-        menu_structure = {
-            "Maktab": {
+        # Create hierarchical menu structure in correct order
+        # Using ordered list instead of dictionary to maintain order
+        menu_structure = [
+            {
+                "title": "Maktab",
                 "url": "#",
                 "children": [
                     {"title": "Maktab haqida", "url": "#"},
@@ -289,7 +290,8 @@ def create_school_defaults(sender, instance, created, **kwargs):
                     {"title": "Bo'sh ish o'rinlari", "url": "#"},
                 ]
             },
-            "Faoliyat": {
+            {
+                "title": "Faoliyat",
                 "url": "#",
                 "children": [
                     {"title": "Yo'nalishlar", "url": "#"},
@@ -299,7 +301,8 @@ def create_school_defaults(sender, instance, created, **kwargs):
                     {"title": "Mahorat darslari", "url": "#"},
                 ]
             },
-            "Ta'lim jarayoni": {
+            {
+                "title": "Ta'lim jarayoni",
                 "url": "#",
                 "children": [
                     {"title": "O'quv reja va dastur", "url": "#"},
@@ -307,21 +310,24 @@ def create_school_defaults(sender, instance, created, **kwargs):
                     {"title": "Resurslar (🔗 YouTube, PDF darsliklar)", "url": "#"},
                 ]
             },
-            "Matbuot": {
+            {
+                "title": "Matbuot",
                 "url": "#",
                 "children": [
                     {"title": "Yangiliklar va e'lonlar", "url": "#"},
                     {"title": "Media (rasm va videolar)", "url": "#"},
                 ]
             },
-            "Hujjatlar": {
+            {
+                "title": "Hujjatlar",
                 "url": "#",
                 "children": [
                     {"title": "Rasmiy hujjatlar", "url": "#"},
                     {"title": "Ochiq ma'lumotlar", "url": "#"},
                 ]
             },
-            "Tijoriy bo'lim": {
+            {
+                "title": "Tijoriy bo'lim",
                 "url": "#",
                 "children": [
                     {"title": "Madaniy xizmatlar", "url": "#"},
@@ -329,24 +335,25 @@ def create_school_defaults(sender, instance, created, **kwargs):
                     {"title": "Tasviriy san'at", "url": "#"},
                 ]
             },
-            "Bog'lanish": {
+            {
+                "title": "Bog'lanish",
                 "url": "#",
                 "children": []
             }
-        }
+        ]
         
-        # Create menu items
-        for parent_title, parent_data in menu_structure.items():
+        # Create menu items in correct order
+        for menu_data in menu_structure:
             # Create parent menu item
             parent_menu = Menu.objects.create(
                 school=instance,
-                title=parent_title,
-                url=parent_data["url"],
+                title=menu_data["title"],
+                url=menu_data["url"],
                 parent=None
             )
             
             # Create child menu items
-            for child_data in parent_data["children"]:
+            for child_data in menu_data["children"]:
                 Menu.objects.create(
                     school=instance,
                     title=child_data["title"],

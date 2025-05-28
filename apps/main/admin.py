@@ -143,4 +143,4 @@ class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, admin.ModelAdmin)
     
     def has_delete_permission(self, request, obj=None):
         # Allow superusers to delete, but prevent regular users from deleting
-        return False
+        return request.user.is_superuser
