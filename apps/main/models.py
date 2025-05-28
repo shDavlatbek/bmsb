@@ -179,7 +179,7 @@ class MusicalInstrument(SlugifyMixin, BaseModel):
 class Direction(SlugifyMixin, BaseModel):
     name = models.CharField(max_length=255, verbose_name="Nomi")
     slug = models.SlugField(unique=True, verbose_name="Slug")
-    
+    slug_source = "name"
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
     
     founded_year = models.SmallIntegerField(null=True, blank=True, verbose_name="Ishga tushgan yili")
@@ -207,7 +207,7 @@ class Direction(SlugifyMixin, BaseModel):
         verbose_name_plural = "Yo'nalishlar"
 
 
-class Teacher(BaseModel):
+class Teacher(SlugifyMixin, BaseModel):
     school = models.ForeignKey(
         School, on_delete=models.CASCADE,
         null=True, blank=True,
@@ -215,6 +215,8 @@ class Teacher(BaseModel):
         related_name="teachers",
     )
     full_name = models.CharField(max_length=500, verbose_name="F.I.O")
+    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug_source = "full_name"
     image = models.ImageField(upload_to=generate_upload_path, verbose_name="Rasm", validators=[file_size], 
                               help_text="Rasm 5 MB dan katta bo'lishi mumkin emas.")
     

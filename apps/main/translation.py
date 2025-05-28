@@ -6,9 +6,11 @@ class MenuTranslationOptions(TranslationOptions):
     fields = ('title',)
     required_languages = ('uz',)
 
+
 class SchoolTranslationOptions(TranslationOptions):
     fields = ('name', 'description', 'short_description', 'address')
     required_languages = ('uz',)
+
 
 class BannerTranslationOptions(TranslationOptions):
     fields = ('title', 'button_text')

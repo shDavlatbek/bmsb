@@ -6,7 +6,7 @@ from django.utils import timezone, dateformat
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.serializers import as_serializer_error
 from rest_framework.views import exception_handler
-
+from rest_framework.pagination import PageNumberPagination
 from django.utils.translation import gettext_lazy as _
 
 
@@ -44,12 +44,7 @@ def make_pretty_error(data, errors):
             data["errors"].append({"error": f"{error}", "message": errors[error]})
 
 
-
-
-
-
-
-
-
-
-
+class Pagination(PageNumberPagination):
+    page_size = 9
+    page_size_query_param = 'page_size'
+    max_page_size = 999

@@ -123,6 +123,9 @@ class TeacherAdmin(DescriptionMixin, SchoolAdminMixin, admin.ModelAdmin):
     list_filter = ('is_active',)
     list_display_links = ('full_name',)
     inlines = [TeacherExperienceInline]
+    prepopulated_fields = {
+        'slug': ('full_name',),
+    }
 
 @admin.register(models.DirectionSchool)
 class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, admin.ModelAdmin):

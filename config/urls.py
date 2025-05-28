@@ -18,10 +18,7 @@ urlpatterns += [
     path('api/', include('apps.main.urls')),
     path('api/', include('apps.common.urls')),
     path('api/news/', include('apps.news.urls')),
-    path('api/lang-check/', lambda request: JsonResponse({
-        "HTTP_ACCEPT_LANGUAGE": request.META.get("HTTP_ACCEPT_LANGUAGE"),
-        "django_language":     request.LANGUAGE_CODE,
-    }), name='lang-check'),
+    path('api/media/', include('apps.media.urls')),
 ]
 
 urlpatterns += swagger_urlpatterns

@@ -4,13 +4,14 @@ import re
 import requests
 from urllib.parse import urlparse, parse_qs
 
+from apps.common.mixins import SlugifyMixin
 from apps.common.models import BaseModel
 from apps.common.utils import generate_upload_path
 from apps.common.validators import file_size, validate_youtube_link
 
 
 
-class MediaCollection(BaseModel):
+class MediaCollection(SlugifyMixin, BaseModel):
     school = models.ForeignKey(
         'main.School', on_delete=models.CASCADE,
         null=True, blank=True,
@@ -19,6 +20,7 @@ class MediaCollection(BaseModel):
     )
     
     title = models.CharField(max_length=255, verbose_name="Nomi")
+    slug = models.SlugField(unique=True, verbose_name="Slug")
     
     def __str__(self):
         return self.title

@@ -7,4 +7,4 @@ from apps.main.serializers.school_life import SchoolLifeSerializer
 class SchoolLifeView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
     serializer_class = SchoolLifeSerializer
     queryset = SchoolLife.objects.all()
-    pagination_class = None
+    page_size = 3
