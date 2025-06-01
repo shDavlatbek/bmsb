@@ -160,6 +160,7 @@ MODELTRANSLATION_TRANSLATION_FILES = (
     'apps.main.translation',
     'apps.news.translation',
     'apps.media.translation',
+    'apps.resource.translation',
 )
 
 

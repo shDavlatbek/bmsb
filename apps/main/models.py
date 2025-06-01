@@ -154,6 +154,13 @@ class Subject(SlugifyMixin, BaseModel):
     slug = models.SlugField(unique=True, verbose_name="Slug")
     
     description = models.TextField(null=True, blank=True, verbose_name="Tafsilot")
+    image = models.ImageField(
+        upload_to=generate_upload_path, 
+        verbose_name="Fon rasmi", 
+        validators=[file_size],
+        null=True, blank=True,
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
     
     def __str__(self):
         return self.name
@@ -169,6 +176,13 @@ class MusicalInstrument(SlugifyMixin, BaseModel):
     slug = models.SlugField(unique=True, verbose_name="Slug")
     
     description = models.TextField(null=True, blank=True, verbose_name="Tafsilot")
+    image = models.ImageField(
+        upload_to=generate_upload_path, 
+        verbose_name="Fon rasmi", 
+        validators=[file_size],
+        null=True, blank=True,
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
     
     class Meta:
         verbose_name = "Musiqa asbobi "
@@ -181,6 +195,21 @@ class Direction(SlugifyMixin, BaseModel):
     slug = models.SlugField(unique=True, verbose_name="Slug")
     slug_source = "name"
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
+    
+    icon = models.ImageField(
+        upload_to=generate_upload_path, 
+        verbose_name="Ikonka", 
+        validators=[file_size],
+        null=True, blank=True,
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
+    image = models.ImageField(
+        upload_to=generate_upload_path, 
+        verbose_name="Fon rasmi", 
+        validators=[file_size],
+        null=True, blank=True,
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
     
     founded_year = models.SmallIntegerField(null=True, blank=True, verbose_name="Ishga tushgan yili")
     student_count = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'quvchilar soni")
@@ -254,6 +283,67 @@ class TeacherExperience(BaseModel):
         verbose_name = "O'qituvchi tajribasi "
         verbose_name_plural = "O'qituvchi tajribalari"
 
+
+class FAQ(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="faqs",
+    )
+    
+    title = models.CharField(max_length=255, verbose_name="Savol")
+    description = models.TextField(verbose_name="Javob")
+    
+    def __str__(self):
+        return self.title
+    
+    class Meta:
+        verbose_name = "FAQ "
+        verbose_name_plural = "FAQ"
+
+
+class Vacancy(SlugifyMixin, BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="vacancies",
+    )
+    
+    title = models.CharField(max_length=255, verbose_name="Lavozim nomi")
+    slug = models.SlugField(unique=True, verbose_name="Slug")
+    description = models.TextField(verbose_name="Tafsilot")
+    salary = models.CharField(max_length=255, verbose_name="Maosh", null=True, blank=True)
+    requirements = models.TextField(verbose_name="Talablar")
+    location = models.CharField(max_length=255, verbose_name="Joylashuv", null=True, blank=True)
+    
+    VACANCY_TYPES = [
+        ('full_time', "To'la ish kuni"),
+        ('part_time', "Yarim ish kuni"),
+        ('contract', "Shartnoma asosida"),
+        ('internship', "Amaliyot"),
+        ('remote', "Masofaviy ish"),
+    ]
+    
+    type = models.CharField(
+        max_length=50,
+        choices=VACANCY_TYPES,
+        default='full_time',
+        verbose_name="Ish turi"
+    )
+    
+    # SlugifyMixin configuration
+    slug_field = 'slug'
+    slug_source = 'title'
+    
+    def __str__(self):
+        return self.title
+    
+    class Meta:
+        verbose_name = "Vakansiya "
+        verbose_name_plural = "Vakansiyalar"
+        unique_together = [['school', 'slug']]
 
 
 # Signal to create default instances when a new School is created
@@ -363,8 +453,3 @@ def create_school_defaults(sender, instance, created, **kwargs):
         
         # Create a DirectionSchool instance for the new school
         DirectionSchool.objects.create(school=instance)
-        
-        # You can add more default instances here as needed
-        # For example, create default subjects or musical instruments
-        
-        print(f"Default instances created for school: {instance.name}")
