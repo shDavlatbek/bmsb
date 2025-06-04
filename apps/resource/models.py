@@ -30,6 +30,7 @@ class ResourceVideo(BaseModel):
         verbose_name_plural = "Resurs videolar"
 
 
+
 class ResourceFile(BaseModel):
     school = models.ForeignKey(
         'main.School', on_delete=models.CASCADE,

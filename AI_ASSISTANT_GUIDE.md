@@ -1,5 +1,65 @@
 # 🤖 AI Assistant Guide for BMSB Project
 
+## 🤖 **INSTRUCTIONS FOR AI ASSISTANTS**
+
+**READ THIS FIRST** - These are mandatory rules for all AI assistants working on this project:
+
+### **Core Principles:**
+1. **NEVER** include `school` in `list_display` or `list_filter` in admin interfaces
+2. **NEVER** use `fieldsets` in admin unless the model has 10+ fields that need grouping
+3. **ALWAYS** use security mixins: `SchoolAdminMixin`, `SchoolScopedMixin`, `IsActiveFilterMixin`
+4. **ALWAYS** include translation support for user-facing text fields
+5. **ALWAYS** use established patterns - refer to examples in this document
+6. **IMPORTANT**: School field should ONLY be in models - NEVER include `school` field in serializers (it's automatically filtered by mixins)
+7. **ALWAYS** add `constraints = [models.UniqueConstraint(...)]` for school-scoped models when needed
+8. **NEVER** use `unique=True` on slug fields - use constraints instead
+
+### **Constraints Rule (Updated):**
+- **Models with school + slug**: 
+  ```python
+  constraints = [
+      models.UniqueConstraint(
+          fields=['school', 'slug'],
+          name='unique_modelname_school_slug',
+      )
+  ]
+  ```
+- **Models with school + title (no slug)**:
+  ```python
+  constraints = [
+      models.UniqueConstraint(
+          fields=['school', 'title'],
+          name='unique_modelname_school_title',
+      )
+  ]
+  ```
+- **Global models** (Subject, MusicalInstrument): 
+  ```python
+  constraints = [
+      models.UniqueConstraint(
+          fields=['slug'],
+          name='unique_modelname_slug',
+      )
+  ]
+  ```
+- **Only add constraints IF NEEDED** - not all models require uniqueness constraints
+
+### **Quick Reference Commands:**
+- Create migrations: `python manage.py makemigrations`
+- Apply migrations: `python manage.py migrate`
+- Check system: `python manage.py check`
+- Never specify migration names unless specifically requested
+
+### **When User Asks for New Features:**
+1. Look at existing examples in this document (FAQ, Vacancy, Direction, Staff, Leader, etc.)
+2. Follow the **exact same patterns**
+3. Use proper Uzbek field names and verbose_name
+4. Include all necessary imports
+5. Create complete implementation (model + admin + serializer + view + URL)
+6. **NEVER include school field in serializers** - it's handled automatically by security mixins
+
+---
+
 ## 📋 Table of Contents
 - [Project Overview](#-project-overview)
 - [Architecture Fundamentals](#-architecture-fundamentals) 
@@ -19,18 +79,22 @@
 - **Multi-Tenant**: Each school has its own subdomain (`school1.example.com`)
 - **Internationalized**: Uzbek (default), Russian, English support
 - **Security-First**: Multiple layers of data isolation and permission checks
+- **Pattern-Consistent**: Established patterns MUST be followed for all new features
 - **Mixin-Based**: Reusable security and functionality components
+
+### **⚠️ CRITICAL**: Pattern Consistency
+This project has **established patterns** that must be followed exactly. All new features should look and behave identically to existing ones. Refer to the **Complete Feature Implementation Example** section for the exact patterns to follow.
 
 ### Project Structure:
 ```
 bmsb/
 ├── apps/
 │   ├── common/          # 🔧 Base models, mixins, utilities
-│   ├── main/            # 🏫 Core school functionality (School, Direction, Teacher)
+│   ├── main/            # 🏫 Core school functionality (School, Direction, Teacher, FAQ, Vacancy)
 │   ├── news/            # 📰 News and announcements
 │   ├── media/           # 📷 Media collections, images, videos  
 │   ├── user/            # 👤 User management
-│   └── resource/        # 📚 Educational resources
+│   └── resource/        # 📚 Educational resources (videos, files)
 ├── config/              # ⚙️ Settings, URLs, middleware
 ├── assets/              # 🎨 Static files (CSS, JS, TinyMCE)
 └── requirements/        # 📦 Dependencies
@@ -180,8 +244,56 @@ class YourModel(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Your Model "
         verbose_name_plural = "Your Models"
-        # Add unique constraint for school-scoped slugs
-        unique_together = [['school', 'slug']]  # If school-related
+        # ALWAYS add unique constraint for school-scoped models
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_modelname_school_slug',
+            )
+        ]
+
+# Alternative patterns for unique_together:
+
+# For models with school + title (no slug):
+class SimpleModel(BaseModel):
+    school = models.ForeignKey('main.School', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255, verbose_name="Sarlavha")
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'title'],
+                name='unique_modelname_school_title',
+            )
+        ]
+
+# For hierarchical models like Menu:
+class HierarchicalModel(BaseModel):
+    school = models.ForeignKey('main.School', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'title', 'parent'],
+                name='unique_modelname_school_title_parent',
+            )
+        ]
+
+# For global models (no school field):
+class GlobalModel(SlugifyMixin, BaseModel):
+    name = models.CharField(max_length=255, verbose_name="Nomi")
+    slug = models.SlugField(unique=True, verbose_name="Slug")
+    
+    class Meta:
+        # No unique_together needed - global data, slug is already unique
+        constraints = [
+            models.UniqueConstraint(
+                fields=['slug'],
+                name='unique_modelname_slug',
+            )
+        ]
 ```
 
 ### View Templates
@@ -315,9 +427,8 @@ class YourModelWithRelationsSerializer(YourModelDetailSerializer):
 5. Create views with proper mixins
 6. Create serializers
 7. Add URLs to config/urls.py
-8. Create migration: python manage.py makemigrations
-9. Apply migration: python manage.py migrate
-10. Test with multiple schools
+8. Create and apply migrations
+9. Test with multiple schools
 ```
 
 ### 2. Adding Translation Support
@@ -326,7 +437,8 @@ class YourModelWithRelationsSerializer(YourModelDetailSerializer):
 from modeltranslation.translator import translator, TranslationOptions
 
 class YourModelTranslationOptions(TranslationOptions):
-    fields = ('name', 'description')
+    fields = ('title', 'description')
+    required_languages = ('uz',)
 
 translator.register(YourModel, YourModelTranslationOptions)
 
@@ -378,14 +490,115 @@ class YourModel(BaseModel):
     
     class Meta:
         # Ensure uniqueness per school
-        unique_together = [['school', 'slug']]
-        # OR use constraints for more complex cases
         constraints = [
             models.UniqueConstraint(
                 fields=['school', 'slug'], 
                 name='unique_slug_per_school'
             )
         ]
+```
+
+### 6. Complete Feature Implementation Example (Staff with Social Media)
+
+**Model Example:**
+```python
+class Staff(SlugifyMixin, BaseModel):
+    school = models.ForeignKey(School, on_delete=models.CASCADE, 
+                              null=True, blank=True, verbose_name="Maktab",
+                              related_name="staffs")
+    
+    full_name = models.CharField(max_length=500, verbose_name="F.I.O")
+    slug = models.SlugField(unique=True, verbose_name="Slug")
+    position = models.CharField(max_length=255, verbose_name="Lavozimi")
+    image = models.ImageField(upload_to=generate_upload_path, 
+                             verbose_name="Rasm", validators=[file_size])
+    description = models.TextField(null=True, blank=True, verbose_name="Tafsilot")
+    
+    # Social media links
+    phone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name="Telefon raqami")
+    email = models.EmailField(null=True, blank=True, verbose_name="Email")
+    instagram_link = models.URLField(null=True, blank=True, verbose_name="Instagram havola")
+    telegram_link = models.URLField(null=True, blank=True, verbose_name="Telegram havola")
+    facebook_link = models.URLField(null=True, blank=True, verbose_name="Facebook havola")
+    linkedin_link = models.URLField(null=True, blank=True, verbose_name="LinkedIn havola")
+    
+    experience_years = models.PositiveIntegerField(null=True, blank=True, verbose_name="Tajribasi")
+    
+    slug_source = 'full_name'
+    
+    class Meta:
+        verbose_name = "Xodim "
+        verbose_name_plural = "Xodimlar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_staff_school_slug',
+            )
+        ]
+```
+
+**Admin Example:**
+```python
+@admin.register(Staff)
+class StaffAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('full_name', 'position', 'experience_years', 'is_active', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('full_name', 'position', 'description')
+    prepopulated_fields = {'slug': ('full_name',)}
+    # No school in list_display or list_filter - automatic filtering
+    # No fieldsets - simple model with reasonable field count
+```
+
+**Serializer Example (IMPORTANT - No School Field):**
+```python
+class StaffListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Staff
+        fields = [
+            'id', 'full_name', 'slug', 'position', 'image', 
+            'instagram_link', 'telegram_link', 'facebook_link', 'linkedin_link',
+            'experience_years', 'created_at'
+        ]
+        # NOTE: NO 'school' field - it's automatically filtered by mixins
+        # NOTE: Staff only has list view, no detail view (single page removed)
+
+class LeaderListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Leader
+        fields = [
+            'id', 'full_name', 'slug', 'position', 'image', 
+            'working_days', 'created_at'
+        ]
+
+class LeaderDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Leader
+        fields = [
+            'id', 'full_name', 'slug', 'position', 'image', 'description',
+            'phone_number', 'email', 'instagram_link', 'telegram_link',
+            'facebook_link', 'linkedin_link', 'working_days', 'created_at'
+        ]
+        # NOTE: NO 'school' field - security mixins handle school filtering
+```
+
+**View Example:**
+```python
+class StaffListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
+    queryset = Staff.objects.all()
+    serializer_class = StaffListSerializer
+    school_field = "school"  # This tells the mixin how to filter by school
+    # NOTE: No detail view for Staff - only list view
+
+class LeaderListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
+    queryset = Leader.objects.all()
+    serializer_class = LeaderListSerializer
+    school_field = "school"
+
+class LeaderDetailView(IsActiveFilterMixin, SchoolScopedMixin, RetrieveAPIView):
+    queryset = Leader.objects.all()
+    serializer_class = LeaderDetailSerializer
+    lookup_field = 'slug'
+    school_field = "school"
 ```
 
 ---
@@ -481,8 +694,6 @@ class BadAdmin(admin.ModelAdmin):
 class GoodAdmin(SchoolAdminMixin, admin.ModelAdmin):
     list_display = ('title', 'is_active', 'created_at')  # No 'school' field
     list_filter = ('is_active', 'created_at')  # No 'school' filter
-    search_fields = ('title',)
-    # Note: No fieldsets needed - school filtering is automatic
 ```
 
 #### 4. "Admin Fieldsets Issues"
@@ -534,33 +745,356 @@ class GoodAdmin(SchoolAdminMixin, AdminTranslation):
 
 ## 🎯 AI Assistant Decision Framework
 
-### When implementing new features, always ask:
+### When implementing new features, ALWAYS follow this checklist:
 
-1. **Is this school-scoped?** → Use `SchoolScopedMixin`
+1. **Is this school-scoped?** → Use `SchoolScopedMixin` with proper `school_field`
 2. **Is this public-facing?** → Use `IsActiveFilterMixin`  
-3. **Is this an admin interface?** → Use `SchoolAdminMixin`
-4. **Should this be translated?** → Add translation support
-5. **Does this need a slug?** → Use `SlugifyMixin`
+3. **Is this an admin interface?** → Use `SchoolAdminMixin` + `AdminTranslation`
+4. **Should this be translated?** → Add translation support with required Uzbek
+5. **Does this need a slug?** → Use `SlugifyMixin` with `slug_source`
+
+### Mandatory Patterns to Follow:
+
+#### **Model Pattern:**
+```python
+class YourModel(SlugifyMixin, BaseModel):  # or just BaseModel if no slug needed
+    school = models.ForeignKey(School, on_delete=models.CASCADE, 
+                              null=True, blank=True, verbose_name="Maktab",
+                              related_name="your_models")
+    title = models.CharField(max_length=255, verbose_name="Uzbek Title")
+    slug = models.SlugField(unique=True, verbose_name="Slug")  # if using SlugifyMixin
+    
+    slug_source = 'title'  # if using SlugifyMixin
+    
+    class Meta:
+        verbose_name = "Uzbek Singular"
+        verbose_name_plural = "Uzbek Plural"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_modelname_school_slug',
+            )
+        ]
+```
+
+#### **Admin Pattern:**
+```python
+@admin.register(YourModel)
+class YourModelAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('title', 'is_active', 'created_at')  # NO school field
+    list_filter = ('is_active', 'created_at')  # NO school filter
+    search_fields = ('title', 'description')
+    prepopulated_fields = {'slug': ('title',)}  # if has slug
+    # NO fieldsets for simple models
+```
+
+#### **Serializer Pattern:**
+```python
+class YourModelSerializer(serializers.ModelSerializer):
+    school_name = serializers.CharField(source='school.name', read_only=True)
+    
+    class Meta:
+        model = YourModel
+        fields = ['id', 'title', 'slug', 'description', 'school_name', 'created_at']
+```
+
+#### **View Pattern:**
+```python
+class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
+    queryset = YourModel.objects.all()
+    serializer_class = YourModelSerializer
+    school_field = "school"  # or "related_field__school" for nested
+```
 
 ### Priority Order for Problem Solving:
 
 1. **Security First**: Ensure proper tenant isolation
-2. **Follow Patterns**: Use existing mixins and templates
-3. **Test Multi-Tenant**: Verify isolation between schools
-4. **Check Documentation**: Reference existing guides
-5. **Maintain Consistency**: Follow project conventions
+2. **Follow Established Patterns**: Use examples from this guide
+3. **No Custom Logic**: Avoid custom filtering, use mixins
+4. **Keep It Simple**: No fieldsets unless absolutely necessary
+5. **Test Multi-Tenant**: Always verify isolation between schools
 
 ### Code Review Checklist:
 
 - [ ] Proper mixin usage for security
 - [ ] Correct school field configuration  
 - [ ] Translation support where needed
-- [ ] Admin interface properly configured (no school in list_display/filter)
+- [ ] Admin interface follows patterns (no school in list_display/filter)
 - [ ] No unnecessary fieldsets in admin
-- [ ] Tests include multi-tenant scenarios
 - [ ] No cross-tenant data leakage
 - [ ] Follows project naming conventions
-- [ ] Documentation updated if needed
+- [ ] Uses established URL patterns
+
+---
+
+**Remember**: BMSB is security-first, multi-tenant system. Every piece of code must respect tenant boundaries and use the established patterns. When in doubt, favor more security mixins rather than fewer! 
+
+### **Complete List of Model Constraints (Updated):**
+
+#### **Main App (`apps/main/models.py`):**
+- `School`: `unique_school_domain`, `unique_school_slug` - Global school uniqueness
+- `SchoolLife`: `unique_schoollife_school_title` - Unique titles per school
+- `Menu`: **NO CONSTRAINTS** - Menu items can have duplicate titles (removed as requested)
+- `Banner`: `unique_banner_school_title` - Unique banner titles per school
+- `Teacher`: `unique_teacher_school_slug` - Unique teacher slugs per school
+- `FAQ`: `unique_faq_school_title` - Unique FAQ questions per school
+- `Document`: `unique_document_school_title` - Unique document titles per school
+- `Vacancy`: `unique_vacancy_school_slug` - Unique vacancy slugs per school
+- `Staff`: `unique_staff_school_slug` - Unique staff slugs per school
+- `Leader`: `unique_leader_school_slug` - Unique leader slugs per school
+- `Subject`: `unique_subject_slug` - Global subject slug uniqueness
+- `MusicalInstrument`: `unique_musicalinstrument_slug` - Global instrument slug uniqueness
+- `Direction`: `unique_direction_slug` - Global direction slug uniqueness
+
+#### **News App (`apps/news/models.py`):**
+- `Category`: `unique_newscategory_school_slug` - Unique category slugs per school
+- `News`: `unique_news_school_slug` - Unique news slugs per school
+
+#### **Media App (`apps/media/models.py`):**
+- `MediaCollection`: `unique_mediacollection_school_slug` - Unique collection slugs per school
+
+#### **Resource App (`apps/resource/models.py`):**
+- `ResourceVideo`: `unique_resourcevideo_school_title` - Unique video titles per school
+- `ResourceFile`: `unique_resourcefile_school_title` - Unique file titles per school
+
+#### **Models WITHOUT Constraints (No Uniqueness Needed):**
+- `DocumentCategory` - Global categories, basic model
+- `MediaImage`, `MediaVideo` - Child models, uniqueness handled at parent level
+- `TeacherExperience` - Child model of Teacher
+- `User` - User model, no uniqueness constraints needed
+- `DirectionSchool` - Relationship model
+- `Menu` - Removed constraints as requested (titles can be duplicate)
+
+#### **Key Changes Made:**
+- ✅ **Removed** `unique=True` from ALL slug fields
+- ✅ **Replaced** `unique_together` with modern `constraints` syntax
+- ✅ **Removed** Menu constraints (title + parent) as requested
+- ✅ **Added** constraints only where actually needed
+- ✅ **Used** descriptive constraint names: `unique_modelname_field1_field2`
+
+---
+
+## 🧪 Testing & Debugging
+
+### Multi-Tenant Testing Pattern
+```python
+from django.test import TestCase, Client
+
+class MultiTenantTestCase(TestCase):
+    def setUp(self):
+        self.school1 = School.objects.create(name="School 1", domain="school1")
+        self.school2 = School.objects.create(name="School 2", domain="school2")
+        
+        self.client1 = Client(HTTP_HOST='school1.example.com')
+        self.client2 = Client(HTTP_HOST='school2.example.com')
+    
+    def test_data_isolation(self):
+        # Create data for school1
+        obj1 = YourModel.objects.create(school=self.school1, name="Test 1")
+        
+        # School1 should see its data
+        response1 = self.client1.get('/api/your-models/')
+        self.assertEqual(len(response1.data), 1)
+        
+        # School2 should not see school1's data
+        response2 = self.client2.get('/api/your-models/')
+        self.assertEqual(len(response2.data), 0)
+```
+
+### Debug Checklist:
+```python
+# 1. Check request context
+def your_view(request):
+    print(f"School: {getattr(request, 'school', 'None')}")
+    print(f"Subdomain: {getattr(request, 'subdomain', 'None')}")
+
+# 2. Check queryset SQL
+def get_queryset(self):
+    qs = super().get_queryset()
+    print(f"SQL: {qs.query}")
+    return qs
+
+# 3. Check mixin application
+class YourView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
+    def get_queryset(self):
+        print(f"MRO: {self.__class__.__mro__}")
+        return super().get_queryset()
+```
+
+---
+
+## 🔧 Troubleshooting Guide
+
+### Common Issues & Solutions:
+
+#### 1. "No School Context" Error
+**Problem**: Views returning empty data or permission errors
+```python
+# ❌ Wrong - No school context
+class BadView(ListAPIView):
+    queryset = YourModel.objects.all()
+
+# ✅ Solution - Add proper mixins
+class GoodView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
+    queryset = YourModel.objects.all()
+    school_field = "school"
+```
+
+#### 2. "Cross-Tenant Data Leakage"  
+**Problem**: Users see data from other schools
+```python
+# ❌ Wrong - Manual filtering
+def get_queryset(self):
+    return YourModel.objects.filter(school__domain=self.request.subdomain)
+
+# ✅ Solution - Use mixins
+class SecureView(SchoolScopedMixin, ListAPIView):
+    school_field = "school"  # Automatic filtering
+```
+
+#### 3. "Admin Shows All Data"
+**Problem**: School admins see data from all schools
+```python
+# ❌ Wrong
+@admin.register(YourModel)
+class BadAdmin(admin.ModelAdmin):
+    pass
+
+# ✅ Solution
+@admin.register(YourModel)
+class GoodAdmin(SchoolAdminMixin, admin.ModelAdmin):
+    list_display = ('title', 'is_active', 'created_at')  # No 'school' field
+    list_filter = ('is_active', 'created_at')  # No 'school' filter
+```
+
+#### 4. "Admin Fieldsets Issues"
+**Problem**: Using fieldsets when not needed
+```python
+# ❌ Wrong - Unnecessary fieldsets for simple models
+@admin.register(YourModel)
+class BadAdmin(SchoolAdminMixin, AdminTranslation):
+    fieldsets = (
+        ('Basic Info', {'fields': ('school', 'title')}),
+    )
+
+# ✅ Solution - Let Django handle the form layout
+@admin.register(YourModel)
+class GoodAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('title', 'is_active', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('title',)
+    # No fieldsets needed for simple models
+
+# 📝 Note: Fieldsets are only useful for complex models with many fields
+# Example: School model with contact info, social links, etc.
+@admin.register(School)
+class SchoolAdmin(SchoolAdminMixin, AdminTranslation):
+    fieldsets = (
+        ('Asosiy 📌', {'fields': ('name', 'domain', 'description')}),
+        ('Kontaktlar 📞', {'fields': ('email', 'phone_number', 'address')}),
+        ('Ijtimoiy tarmoqlar 🔗', {'fields': ('instagram_link', 'telegram_link')}),
+    )
+```
+
+#### 5. "School Field in Admin List/Filters"
+**Problem**: Including school in list_display or list_filter
+```python
+# ❌ Wrong - School field shown to users
+@admin.register(YourModel)
+class BadAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('title', 'school', 'is_active')  # Shows school
+    list_filter = ('is_active', 'school')  # Allows filtering by school
+
+# ✅ Solution - School filtering is automatic
+@admin.register(YourModel)
+class GoodAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('title', 'is_active', 'created_at')  # No school
+    list_filter = ('is_active', 'created_at')  # No school filter
+```
+
+---
+
+## 🎯 AI Assistant Decision Framework
+
+### When implementing new features, ALWAYS follow this checklist:
+
+1. **Is this school-scoped?** → Use `SchoolScopedMixin` with proper `school_field`
+2. **Is this public-facing?** → Use `IsActiveFilterMixin`  
+3. **Is this an admin interface?** → Use `SchoolAdminMixin` + `AdminTranslation`
+4. **Should this be translated?** → Add translation support with required Uzbek
+5. **Does this need a slug?** → Use `SlugifyMixin` with `slug_source`
+
+### Mandatory Patterns to Follow:
+
+#### **Model Pattern:**
+```python
+class YourModel(SlugifyMixin, BaseModel):  # or just BaseModel if no slug needed
+    school = models.ForeignKey(School, on_delete=models.CASCADE, 
+                              null=True, blank=True, verbose_name="Maktab",
+                              related_name="your_models")
+    title = models.CharField(max_length=255, verbose_name="Uzbek Title")
+    slug = models.SlugField(unique=True, verbose_name="Slug")  # if using SlugifyMixin
+    
+    slug_source = 'title'  # if using SlugifyMixin
+    
+    class Meta:
+        verbose_name = "Uzbek Singular"
+        verbose_name_plural = "Uzbek Plural"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_modelname_school_slug',
+            )
+        ]
+```
+
+#### **Admin Pattern:**
+```python
+@admin.register(YourModel)
+class YourModelAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('title', 'is_active', 'created_at')  # NO school field
+    list_filter = ('is_active', 'created_at')  # NO school filter
+    search_fields = ('title', 'description')
+    prepopulated_fields = {'slug': ('title',)}  # if has slug
+    # NO fieldsets for simple models
+```
+
+#### **Serializer Pattern:**
+```python
+class YourModelSerializer(serializers.ModelSerializer):
+    school_name = serializers.CharField(source='school.name', read_only=True)
+    
+    class Meta:
+        model = YourModel
+        fields = ['id', 'title', 'slug', 'description', 'school_name', 'created_at']
+```
+
+#### **View Pattern:**
+```python
+class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
+    queryset = YourModel.objects.all()
+    serializer_class = YourModelSerializer
+    school_field = "school"  # or "related_field__school" for nested
+```
+
+### Priority Order for Problem Solving:
+
+1. **Security First**: Ensure proper tenant isolation
+2. **Follow Established Patterns**: Use examples from this guide
+3. **No Custom Logic**: Avoid custom filtering, use mixins
+4. **Keep It Simple**: No fieldsets unless absolutely necessary
+5. **Test Multi-Tenant**: Always verify isolation between schools
+
+### Code Review Checklist:
+
+- [ ] Proper mixin usage for security
+- [ ] Correct school field configuration  
+- [ ] Translation support where needed
+- [ ] Admin interface follows patterns (no school in list_display/filter)
+- [ ] No unnecessary fieldsets in admin
+- [ ] No cross-tenant data leakage
+- [ ] Follows project naming conventions
+- [ ] Uses established URL patterns
 
 ---
 

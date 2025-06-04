@@ -8,14 +8,14 @@ from django.utils.safestring import mark_safe
 
 from apps.common.models import BaseModel
 from apps.common.utils import generate_upload_path
-from apps.common.validators import file_size
+from apps.common.validators import file_size, file_size_50
 
     
     
 class School(SlugifyMixin, BaseModel):
     domain = models.SlugField(unique=True, verbose_name="Subdomen")
     name = models.CharField(max_length=255, verbose_name="Nomi")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
     short_description = HTMLField(null=True, blank=True, verbose_name="Qisqacha tafsilot")
     founded_year = models.SmallIntegerField(null=True, blank=True, verbose_name="Ishga tushgan yili")
@@ -41,6 +41,16 @@ class School(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Maktab "
         verbose_name_plural = "Maktablar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['domain'],
+                name='unique_school_domain',
+            ),
+            models.UniqueConstraint(
+                fields=['slug'],
+                name='unique_school_slug',
+            )
+        ]
 
 
 class SchoolLife(BaseModel):
@@ -144,9 +154,6 @@ class DirectionSchool(BaseModel):
     class Meta:
         verbose_name = "Maktab yo'nalishlari "
         verbose_name_plural = "Maktab yo'nalishlari"
-        # constraints = [
-        #     models.UniqueConstraint(fields=['school'], name='unique_direction_school_per_school')
-        # ]
 
 
 class Subject(SlugifyMixin, BaseModel):
@@ -168,7 +175,6 @@ class Subject(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Fan "
         verbose_name_plural = "Fanlar"
-    
 
 
 class MusicalInstrument(SlugifyMixin, BaseModel):
@@ -187,7 +193,6 @@ class MusicalInstrument(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Musiqa asbobi "
         verbose_name_plural = "Musiqa asboblari"
-    
 
 
 class Direction(SlugifyMixin, BaseModel):
@@ -244,7 +249,7 @@ class Teacher(SlugifyMixin, BaseModel):
         related_name="teachers",
     )
     full_name = models.CharField(max_length=500, verbose_name="F.I.O")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     slug_source = "full_name"
     image = models.ImageField(upload_to=generate_upload_path, verbose_name="Rasm", validators=[file_size], 
                               help_text="Rasm 5 MB dan katta bo'lishi mumkin emas.")
@@ -263,7 +268,13 @@ class Teacher(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "O'qituvchi "
         verbose_name_plural = "O'qituvchilar"
-    
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_teacher_school_slug',
+            )
+        ]
+
 
 class TeacherExperience(BaseModel):
     teacher = models.ForeignKey(
@@ -312,7 +323,7 @@ class Vacancy(SlugifyMixin, BaseModel):
     )
     
     title = models.CharField(max_length=255, verbose_name="Lavozim nomi")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     description = models.TextField(verbose_name="Tafsilot")
     salary = models.CharField(max_length=255, verbose_name="Maosh", null=True, blank=True)
     requirements = models.TextField(verbose_name="Talablar")
@@ -343,7 +354,104 @@ class Vacancy(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Vakansiya "
         verbose_name_plural = "Vakansiyalar"
-        unique_together = [['school', 'slug']]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_vacancy_school_slug',
+            )
+        ]
+
+
+class Staff(SlugifyMixin, BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="staffs",
+    )
+    
+    full_name = models.CharField(max_length=500, verbose_name="F.I.O")
+    slug = models.SlugField(verbose_name="Slug")
+    position = models.CharField(max_length=255, verbose_name="Lavozimi")
+    image = models.ImageField(
+        upload_to=generate_upload_path, 
+        verbose_name="Rasm", 
+        validators=[file_size], 
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
+    
+    # Social media links
+    instagram_link = models.URLField(null=True, blank=True, verbose_name="Instagram havola")
+    telegram_link = models.URLField(null=True, blank=True, verbose_name="Telegram havola")
+    facebook_link = models.URLField(null=True, blank=True, verbose_name="Facebook havola")
+    linkedin_link = models.URLField(null=True, blank=True, verbose_name="LinkedIn havola")
+    
+    experience_years = models.PositiveIntegerField(null=True, blank=True, verbose_name="Tajribasi", help_text="Yil")
+    
+    # SlugifyMixin configuration
+    slug_field = 'slug'
+    slug_source = 'full_name'
+    
+    def __str__(self):
+        return f"{self.full_name} - {self.position}"
+    
+    class Meta:
+        verbose_name = "Xodim "
+        verbose_name_plural = "Xodimlar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_staff_school_slug',
+            )
+        ]
+
+
+class Leader(SlugifyMixin, BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="leaders",
+    )
+    
+    full_name = models.CharField(max_length=500, verbose_name="F.I.O")
+    slug = models.SlugField(verbose_name="Slug")
+    slug_source = "full_name"
+    position = models.CharField(max_length=255, verbose_name="Lavozimi")
+    image = models.ImageField(
+        upload_to=generate_upload_path, 
+        verbose_name="Rasm", 
+        validators=[file_size], 
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
+    description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
+    
+    # Social media links
+    phone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name="Telefon raqami")
+    email = models.EmailField(null=True, blank=True, verbose_name="Email")
+    instagram_link = models.URLField(null=True, blank=True, verbose_name="Instagram havola")
+    telegram_link = models.URLField(null=True, blank=True, verbose_name="Telegram havola")
+    facebook_link = models.URLField(null=True, blank=True, verbose_name="Facebook havola")
+    linkedin_link = models.URLField(null=True, blank=True, verbose_name="LinkedIn havola")
+    
+    working_days = models.CharField(max_length=255, null=True, blank=True, verbose_name="Ish kunlari")
+    
+    # SlugifyMixin configuration
+    slug_field = 'slug'
+    slug_source = 'full_name'
+    
+    def __str__(self):
+        return f"{self.full_name} - {self.position}"
+    
+    class Meta:
+        verbose_name = "Rahbar "
+        verbose_name_plural = "Rahbarlar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_leader_school_slug',
+            )
+        ]
 
 
 # Signal to create default instances when a new School is created
@@ -453,3 +561,48 @@ def create_school_defaults(sender, instance, created, **kwargs):
         
         # Create a DirectionSchool instance for the new school
         DirectionSchool.objects.create(school=instance)
+
+
+class DocumentCategory(BaseModel):
+    name = models.CharField(max_length=255, verbose_name="Kategoriya nomi")
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "Hujjat kategoriyasi"
+        verbose_name_plural = "Hujjat kategoriyalari"
+
+
+class Document(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="documents",
+    )
+    category = models.ForeignKey(
+        DocumentCategory, on_delete=models.CASCADE,
+        verbose_name="Kategoriya",
+        related_name="documents"
+    )
+    title = models.CharField(max_length=255, verbose_name="Hujjat nomi")
+    file = models.FileField(
+        upload_to=generate_upload_path,
+        verbose_name="Fayl",
+        validators=[file_size_50],
+        help_text="Fayl 50 MB dan katta bo'lishi mumkin emas."
+    )
+    
+    def __str__(self):
+        return self.title
+    
+    class Meta:
+        verbose_name = "Hujjat"
+        verbose_name_plural = "Hujjatlar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'title'],
+                name='unique_document_school_title',
+            )
+        ]

@@ -17,7 +17,7 @@ class Category(SlugifyMixin, BaseModel):
     )
     
     name = models.CharField(max_length=255, verbose_name="Nomi")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     
     def __str__(self):
         return self.name
@@ -26,6 +26,12 @@ class Category(SlugifyMixin, BaseModel):
         verbose_name = "Kategoriya"
         verbose_name_plural = "Kategoriyalar"
         ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_newscategory_school_slug',
+            )
+        ]
 
 
 class News(SlugifyMixin, BaseModel):
@@ -43,7 +49,7 @@ class News(SlugifyMixin, BaseModel):
     )
     
     title = models.CharField(max_length=255, verbose_name="Sarlavha")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     image = models.ImageField(
         upload_to=generate_upload_path, 
         verbose_name="Rasm", 
@@ -71,3 +77,9 @@ class News(SlugifyMixin, BaseModel):
         verbose_name = "Yangilik"
         verbose_name_plural = "Yangiliklar"
         ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_news_school_slug',
+            )
+        ]

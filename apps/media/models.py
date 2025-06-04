@@ -20,7 +20,7 @@ class MediaCollection(SlugifyMixin, BaseModel):
     )
     
     title = models.CharField(max_length=255, verbose_name="Nomi")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     
     def __str__(self):
         return self.title
@@ -28,6 +28,12 @@ class MediaCollection(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Rasmlar to'plami "
         verbose_name_plural = "Rasmlar to'plami"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_mediacollection_school_slug',
+            )
+        ]
 
 
 class MediaImage(BaseModel):

@@ -221,3 +221,33 @@ class VacancyAdmin(SchoolAdminMixin, AdminTranslation):
         """Override form to show choice labels in admin"""
         form = super().get_form(request, obj, **kwargs)
         return form
+
+
+@admin.register(models.DocumentCategory)
+class DocumentCategoryAdmin(AdminTranslation):
+    list_display = ('name', 'is_active', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('name',)
+
+
+@admin.register(models.Document)
+class DocumentAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('title', 'category', 'is_active', 'created_at')
+    list_filter = ('is_active', 'category', 'created_at')
+    search_fields = ('title',)
+
+
+@admin.register(models.Staff)
+class StaffAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('full_name', 'position', 'experience_years', 'is_active', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('full_name', 'position')
+    prepopulated_fields = {'slug': ('full_name',)}
+
+
+@admin.register(models.Leader)
+class LeaderAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('full_name', 'position', 'working_days', 'is_active', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('full_name', 'position', 'description')
+    prepopulated_fields = {'slug': ('full_name',)}

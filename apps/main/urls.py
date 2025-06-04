@@ -7,6 +7,9 @@ from .views.direction import DirectionListView, DirectionDetailView
 from .views.teacher import TeacherListView, TeacherDetailView
 from .views.faq import FAQListView
 from .views.vacancy import VacancyListView
+from .views.document import DocumentListView, DocumentCategoryListView
+from .views.staff import StaffListView
+from .views.leader import LeaderListView, LeaderDetailView
 
 urlpatterns = [
     path('menus/', MenuView.as_view(), name='menu'),
@@ -27,5 +30,16 @@ urlpatterns = [
     
     # Vacancy endpoints
     path('vacancies/', VacancyListView.as_view(), name='vacancy-list'),
+    
+    # Document endpoints
+    path('documents/', DocumentListView.as_view(), name='document-list'),
+    path('documents/categories/', DocumentCategoryListView.as_view(), name='document-category-list'),
+    
+    # Staff endpoints
+    path('staffs/', StaffListView.as_view(), name='staff-list'),
+    
+    # Leader endpoints
+    path('leaders/', LeaderListView.as_view(), name='leader-list'),
+    path('leaders/<slug:slug>/', LeaderDetailView.as_view(), name='leader-detail'),
 ]
 
