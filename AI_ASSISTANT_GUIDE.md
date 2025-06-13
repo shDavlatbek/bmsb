@@ -24,15 +24,7 @@
       )
   ]
   ```
-- **Models with school + title (no slug)**:
-  ```python
-  constraints = [
-      models.UniqueConstraint(
-          fields=['school', 'title'],
-          name='unique_modelname_school_title',
-      )
-  ]
-  ```
+- **Models with school + title (no slug)**: **NO CONSTRAINTS** - Allow duplicate titles per school
 - **Global models** (Subject, MusicalInstrument): 
   ```python
   constraints = [
@@ -57,6 +49,11 @@
 4. Include all necessary imports
 5. Create complete implementation (model + admin + serializer + view + URL)
 6. **NEVER include school field in serializers** - it's handled automatically by security mixins
+
+### **File Upload Handling:**
+- **File conflicts**: The `generate_upload_path` function in `apps/common/utils.py` automatically handles duplicate filenames by appending an 8-character UUID suffix
+- **Path format**: `<app>/<model>/<Y/m/d>/<filename>` (adds `-<8-char-uuid>` only if there's a clash)
+- **Example**: `image.png` → `image-a1b2c3d4.png` if original exists
 
 ---
 
@@ -260,12 +257,9 @@ class SimpleModel(BaseModel):
     title = models.CharField(max_length=255, verbose_name="Sarlavha")
     
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['school', 'title'],
-                name='unique_modelname_school_title',
-            )
-        ]
+        verbose_name = "Simple Model"
+        verbose_name_plural = "Simple Models"
+        # NO CONSTRAINTS - Allow duplicate titles per school
 
 # For hierarchical models like Menu:
 class HierarchicalModel(BaseModel):
@@ -833,12 +827,12 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 
 #### **Main App (`apps/main/models.py`):**
 - `School`: `unique_school_domain`, `unique_school_slug` - Global school uniqueness
-- `SchoolLife`: `unique_schoollife_school_title` - Unique titles per school
-- `Menu`: **NO CONSTRAINTS** - Menu items can have duplicate titles (removed as requested)
-- `Banner`: `unique_banner_school_title` - Unique banner titles per school
+- `SchoolLife`: **NO CONSTRAINTS** - Allow duplicate titles per school
+- `Menu`: **NO CONSTRAINTS** - Menu items can have duplicate titles
+- `Banner`: **NO CONSTRAINTS** - Allow duplicate banner titles per school
 - `Teacher`: `unique_teacher_school_slug` - Unique teacher slugs per school
-- `FAQ`: `unique_faq_school_title` - Unique FAQ questions per school
-- `Document`: `unique_document_school_title` - Unique document titles per school
+- `FAQ`: **NO CONSTRAINTS** - Allow duplicate FAQ questions per school  
+- `Document`: **NO CONSTRAINTS** - Allow duplicate document titles per school
 - `Vacancy`: `unique_vacancy_school_slug` - Unique vacancy slugs per school
 - `Staff`: `unique_staff_school_slug` - Unique staff slugs per school
 - `Leader`: `unique_leader_school_slug` - Unique leader slugs per school
@@ -854,8 +848,8 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 - `MediaCollection`: `unique_mediacollection_school_slug` - Unique collection slugs per school
 
 #### **Resource App (`apps/resource/models.py`):**
-- `ResourceVideo`: `unique_resourcevideo_school_title` - Unique video titles per school
-- `ResourceFile`: `unique_resourcefile_school_title` - Unique file titles per school
+- `ResourceVideo`: **NO CONSTRAINTS** - Allow duplicate video titles per school
+- `ResourceFile`: **NO CONSTRAINTS** - Allow duplicate file titles per school
 
 #### **Models WITHOUT Constraints (No Uniqueness Needed):**
 - `DocumentCategory` - Global categories, basic model

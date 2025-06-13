@@ -8,6 +8,7 @@ from .views.teacher import TeacherListView, TeacherDetailView
 from .views.faq import FAQListView
 from .views.vacancy import VacancyListView
 from .views.document import DocumentListView, DocumentCategoryListView
+from .views.timetable import TimeTableListView
 from .views.staff import StaffListView
 from .views.leader import LeaderListView, LeaderDetailView
 
@@ -30,6 +31,9 @@ urlpatterns = [
     
     # Vacancy endpoints
     path('vacancies/', VacancyListView.as_view(), name='vacancy-list'),
+    
+    # TimeTable endpoints
+    path('timetables/', TimeTableListView.as_view(), name='timetable-list'),
     
     # Document endpoints
     path('documents/', DocumentListView.as_view(), name='document-list'),

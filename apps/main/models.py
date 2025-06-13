@@ -5,10 +5,11 @@ from mptt.models import MPTTModel, TreeForeignKey
 from apps.common.mixins import SlugifyMixin
 from tinymce.models import HTMLField
 from django.utils.safestring import mark_safe
-
+from django.core.validators import FileExtensionValidator
 from apps.common.models import BaseModel
 from apps.common.utils import generate_upload_path
 from apps.common.validators import file_size, file_size_50
+
 
     
     
@@ -41,16 +42,6 @@ class School(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Maktab "
         verbose_name_plural = "Maktablar"
-        constraints = [
-            models.UniqueConstraint(
-                fields=['domain'],
-                name='unique_school_domain',
-            ),
-            models.UniqueConstraint(
-                fields=['slug'],
-                name='unique_school_slug',
-            )
-        ]
 
 
 class SchoolLife(BaseModel):
@@ -453,6 +444,72 @@ class Leader(SlugifyMixin, BaseModel):
             )
         ]
 
+        
+
+class TimeTable(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="time_tables",
+    )
+    
+    title = models.CharField(max_length=255, verbose_name="Sinf")
+    file = models.FileField(
+        upload_to=generate_upload_path,
+        verbose_name="O'quv reja",
+        null=True, blank=True,
+        validators=[file_size_50, FileExtensionValidator(allowed_extensions=['pdf'])],
+        help_text="Fayl 50 MB dan katta bo'lishi mumkin emas. Fayl PDF formatida bo'lishi kerak."
+    )
+    
+    def __str__(self):
+        return self.title
+    
+    class Meta:
+        verbose_name = "O'quv reja "
+        verbose_name_plural = "O'quv reja"
+        ordering = ['title']
+
+
+class DocumentCategory(BaseModel):
+    name = models.CharField(max_length=255, verbose_name="Kategoriya nomi")
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "Hujjat kategoriyasi"
+        verbose_name_plural = "Hujjat kategoriyalari"
+
+
+class Document(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="documents",
+    )
+    category = models.ForeignKey(
+        DocumentCategory, on_delete=models.CASCADE,
+        verbose_name="Kategoriya",
+        related_name="documents"
+    )
+    title = models.CharField(max_length=255, verbose_name="Hujjat nomi")
+    file = models.FileField(
+        upload_to=generate_upload_path,
+        verbose_name="Fayl",
+        validators=[file_size_50],
+        help_text="Fayl 50 MB dan katta bo'lishi mumkin emas."
+    )
+    
+    def __str__(self):
+        return self.title
+    
+    class Meta:
+        verbose_name = "Hujjat "
+        verbose_name_plural = "Hujjatlar"
+        
 
 # Signal to create default instances when a new School is created
 @receiver(post_save, sender=School)
@@ -561,48 +618,26 @@ def create_school_defaults(sender, instance, created, **kwargs):
         
         # Create a DirectionSchool instance for the new school
         DirectionSchool.objects.create(school=instance)
-
-
-class DocumentCategory(BaseModel):
-    name = models.CharField(max_length=255, verbose_name="Kategoriya nomi")
-    
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "Hujjat kategoriyasi"
-        verbose_name_plural = "Hujjat kategoriyalari"
-
-
-class Document(BaseModel):
-    school = models.ForeignKey(
-        School, on_delete=models.CASCADE,
-        null=True, blank=True,
-        verbose_name="Maktab",
-        related_name="documents",
-    )
-    category = models.ForeignKey(
-        DocumentCategory, on_delete=models.CASCADE,
-        verbose_name="Kategoriya",
-        related_name="documents"
-    )
-    title = models.CharField(max_length=255, verbose_name="Hujjat nomi")
-    file = models.FileField(
-        upload_to=generate_upload_path,
-        verbose_name="Fayl",
-        validators=[file_size_50],
-        help_text="Fayl 50 MB dan katta bo'lishi mumkin emas."
-    )
-    
-    def __str__(self):
-        return self.title
-    
-    class Meta:
-        verbose_name = "Hujjat"
-        verbose_name_plural = "Hujjatlar"
-        constraints = [
-            models.UniqueConstraint(
-                fields=['school', 'title'],
-                name='unique_document_school_title',
-            )
+        
+        # Create TimeTable instances for the new school with translations
+        
+        time_tables = [
+            {'uz': '1-sinflar', 'ru': '1-классы', 'en': '1-classes'},
+            {'uz': '2-sinflar', 'ru': '2-классы', 'en': '2-classes'},
+            {'uz': '3-sinflar', 'ru': '3-классы', 'en': '3-classes'},
+            {'uz': '4-sinflar', 'ru': '4-классы', 'en': '4-classes'},
+            {'uz': '5-sinflar', 'ru': '5-классы', 'en': '5-classes'},
+            {'uz': '6-sinflar', 'ru': '6-классы', 'en': '6-classes'},
+            {'uz': '7-sinflar', 'ru': '7-классы', 'en': '7-classes'},
+            {'uz': '8-sinflar', 'ru': '8-классы', 'en': '8-classes'},
+            {'uz': '9-sinflar', 'ru': '9-классы', 'en': '9-classes'},
         ]
+        
+        for time_table in time_tables:
+            TimeTable.objects.create(
+                school=instance,
+                title=time_table['uz'],
+                title_uz=time_table['uz'],
+                title_ru=time_table['ru'],
+                title_en=time_table['en']
+            )

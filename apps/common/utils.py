@@ -1,6 +1,8 @@
 from datetime import timezone
 import hashlib
+from uuid import uuid4
 from django.core.files import File
+from django.core.files.storage import default_storage
 from PIL import Image
 from io import BytesIO
 from django.utils import timezone, dateformat
@@ -9,18 +11,22 @@ import os
 
 def generate_upload_path(instance, filename: str) -> str:
     """
-    <app>/<model>/<Y/m/d>/<filename>
+    <app>/<model>/<Y/m/d>/<filename>   (adds -<8-char-uuid> *only* if a clash)
     """
     app_label  = instance._meta.app_label
     model_name = instance._meta.model_name
     today      = dateformat.format(timezone.now(), "Y/m/d")
 
     name, ext  = os.path.splitext(filename)
+    base_dir   = f"{app_label}/{model_name}/{today}"
 
-    return (
-        f"{app_label}/{model_name}/{today}/"
-        f"{name}{ext.lower()}"
-    )
+    candidate  = f"{base_dir}/{name}{ext.lower()}"
+    # If the exact name exists, keep trying until it's unique
+    while default_storage.exists(candidate):
+        candidate = f"{base_dir}/{name}-{uuid4().hex[:8]}{ext.lower()}"
+
+    return candidate
+
 
 def compress(image):
     if not image:

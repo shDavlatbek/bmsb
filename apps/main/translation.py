@@ -1,5 +1,5 @@
 from modeltranslation.translator import translator, TranslationOptions
-from .models import School, Menu, Banner, SchoolLife, Direction, Subject, MusicalInstrument, TeacherExperience, FAQ, Vacancy, Document, DocumentCategory, Staff, Leader
+from .models import School, Menu, Banner, SchoolLife, Direction, Subject, MusicalInstrument, TeacherExperience, FAQ, Vacancy, TimeTable, Document, DocumentCategory, Staff, Leader
 
 
 class MenuTranslationOptions(TranslationOptions):
@@ -62,6 +62,11 @@ class DocumentTranslationOptions(TranslationOptions):
     required_languages = ('uz',)
 
 
+class TimeTableTranslationOptions(TranslationOptions):
+    fields = ('title',)
+    required_languages = ('uz',)
+
+
 class StaffTranslationOptions(TranslationOptions):
     fields = ('full_name', 'position')
     required_languages = ('uz',)
@@ -84,5 +89,6 @@ translator.register(FAQ, FAQTranslationOptions)
 translator.register(Vacancy, VacancyTranslationOptions)
 translator.register(DocumentCategory, DocumentCategoryTranslationOptions)
 translator.register(Document, DocumentTranslationOptions)
+translator.register(TimeTable, TimeTableTranslationOptions)
 translator.register(Staff, StaffTranslationOptions)
 translator.register(Leader, LeaderTranslationOptions)

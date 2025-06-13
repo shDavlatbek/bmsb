@@ -66,6 +66,7 @@ INSTALLED_APPS = PRIORITY_APPS + DJANGO_APPS + MY_APPS + THIRD_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     
+    'corsheaders.middleware.CorsMiddleware',
     'apps.main.middleware.SubdomainMiddleware',
     
     'django.contrib.sessions.middleware.SessionMiddleware',

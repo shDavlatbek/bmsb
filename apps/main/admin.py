@@ -223,18 +223,33 @@ class VacancyAdmin(SchoolAdminMixin, AdminTranslation):
         return form
 
 
-@admin.register(models.DocumentCategory)
-class DocumentCategoryAdmin(AdminTranslation):
-    list_display = ('name', 'is_active', 'created_at')
-    list_filter = ('is_active', 'created_at')
-    search_fields = ('name',)
-
-
 @admin.register(models.Document)
 class DocumentAdmin(SchoolAdminMixin, AdminTranslation):
     list_display = ('title', 'category', 'is_active', 'created_at')
     list_filter = ('is_active', 'category', 'created_at')
     search_fields = ('title',)
+
+
+@admin.register(models.TimeTable)
+class TimeTableAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('title', 'file', 'is_active')
+    list_filter = ('is_active',)
+    search_fields = ('title',)
+    
+    def has_add_permission(self, request):
+        # Prevent adding new timetables (they should be created automatically)
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        # Prevent deleting timetables
+        return False
+
+
+@admin.register(models.DocumentCategory)
+class DocumentCategoryAdmin(AdminTranslation):
+    list_display = ('name', 'is_active', 'created_at')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('name',)
 
 
 @admin.register(models.Staff)
