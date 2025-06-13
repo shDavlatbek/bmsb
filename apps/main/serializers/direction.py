@@ -5,13 +5,13 @@ from ..models import Direction, Subject, MusicalInstrument, Teacher
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = ['id', 'name', 'slug', 'description', 'image']
+        fields = ['id', 'name', 'slug', 'description', 'background_image', 'icon', 'created_at']
 
 
 class MusicalInstrumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = MusicalInstrument
-        fields = ['id', 'name', 'slug', 'description', 'image']
+        fields = ['id', 'name', 'slug', 'description', 'background_image', 'icon', 'created_at']
 
 
 class TeacherBasicSerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class TeacherBasicSerializer(serializers.ModelSerializer):
 class DirectionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Direction
-        fields = ['id', 'name', 'slug', 'icon', 'image', 'founded_year', 'student_count', 'teacher_count', 'created_at']
+        fields = ['id', 'name', 'slug', 'icon', 'background_image', 'founded_year', 'student_count', 'teacher_count', 'created_at']
 
 
 class DirectionDetailSerializer(serializers.ModelSerializer):
@@ -34,7 +34,7 @@ class DirectionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Direction
         fields = [
-            'id', 'name', 'slug', 'description', 'icon', 'image', 'founded_year', 
+            'id', 'name', 'slug', 'description', 'icon', 'background_image', 'founded_year', 
             'student_count', 'teacher_count', 'subjects', 
             'musical_instruments', 'teachers', 'created_at'
         ] 

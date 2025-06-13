@@ -228,7 +228,7 @@ class YourModel(SlugifyMixin, BaseModel):
     )
     
     name = models.CharField(max_length=255, verbose_name="Nomi")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
     
     # SlugifyMixin configuration
@@ -278,7 +278,7 @@ class HierarchicalModel(BaseModel):
 # For global models (no school field):
 class GlobalModel(SlugifyMixin, BaseModel):
     name = models.CharField(max_length=255, verbose_name="Nomi")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     
     class Meta:
         # No unique_together needed - global data, slug is already unique
@@ -502,7 +502,7 @@ class Staff(SlugifyMixin, BaseModel):
                               related_name="staffs")
     
     full_name = models.CharField(max_length=500, verbose_name="F.I.O")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     position = models.CharField(max_length=255, verbose_name="Lavozimi")
     image = models.ImageField(upload_to=generate_upload_path, 
                              verbose_name="Rasm", validators=[file_size])
@@ -756,7 +756,7 @@ class YourModel(SlugifyMixin, BaseModel):  # or just BaseModel if no slug needed
                               null=True, blank=True, verbose_name="Maktab",
                               related_name="your_models")
     title = models.CharField(max_length=255, verbose_name="Uzbek Title")
-    slug = models.SlugField(unique=True, verbose_name="Slug")  # if using SlugifyMixin
+    slug = models.SlugField(verbose_name="Slug")  # if using SlugifyMixin
     
     slug_source = 'title'  # if using SlugifyMixin
     
@@ -868,52 +868,7 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 
 ---
 
-## 🧪 Testing & Debugging
-
-### Multi-Tenant Testing Pattern
-```python
-from django.test import TestCase, Client
-
-class MultiTenantTestCase(TestCase):
-    def setUp(self):
-        self.school1 = School.objects.create(name="School 1", domain="school1")
-        self.school2 = School.objects.create(name="School 2", domain="school2")
-        
-        self.client1 = Client(HTTP_HOST='school1.example.com')
-        self.client2 = Client(HTTP_HOST='school2.example.com')
-    
-    def test_data_isolation(self):
-        # Create data for school1
-        obj1 = YourModel.objects.create(school=self.school1, name="Test 1")
-        
-        # School1 should see its data
-        response1 = self.client1.get('/api/your-models/')
-        self.assertEqual(len(response1.data), 1)
-        
-        # School2 should not see school1's data
-        response2 = self.client2.get('/api/your-models/')
-        self.assertEqual(len(response2.data), 0)
-```
-
-### Debug Checklist:
-```python
-# 1. Check request context
-def your_view(request):
-    print(f"School: {getattr(request, 'school', 'None')}")
-    print(f"Subdomain: {getattr(request, 'subdomain', 'None')}")
-
-# 2. Check queryset SQL
-def get_queryset(self):
-    qs = super().get_queryset()
-    print(f"SQL: {qs.query}")
-    return qs
-
-# 3. Check mixin application
-class YourView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
-    def get_queryset(self):
-        print(f"MRO: {self.__class__.__mro__}")
-        return super().get_queryset()
-```
+**Remember**: BMSB is security-first, multi-tenant system. Every piece of code must respect tenant boundaries and use the established patterns. When in doubt, favor more security mixins rather than fewer!
 
 ---
 
@@ -1027,7 +982,7 @@ class YourModel(SlugifyMixin, BaseModel):  # or just BaseModel if no slug needed
                               null=True, blank=True, verbose_name="Maktab",
                               related_name="your_models")
     title = models.CharField(max_length=255, verbose_name="Uzbek Title")
-    slug = models.SlugField(unique=True, verbose_name="Slug")  # if using SlugifyMixin
+    slug = models.SlugField(verbose_name="Slug")  # if using SlugifyMixin
     
     slug_source = 'title'  # if using SlugifyMixin
     

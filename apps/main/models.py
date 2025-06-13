@@ -152,9 +152,16 @@ class Subject(SlugifyMixin, BaseModel):
     slug = models.SlugField(unique=True, verbose_name="Slug")
     
     description = models.TextField(null=True, blank=True, verbose_name="Tafsilot")
-    image = models.ImageField(
+    background_image = models.ImageField(
         upload_to=generate_upload_path, 
         verbose_name="Fon rasmi", 
+        validators=[file_size],
+        null=True, blank=True,
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
+    icon = models.ImageField(
+        upload_to=generate_upload_path, 
+        verbose_name="Ikonka", 
         validators=[file_size],
         null=True, blank=True,
         help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
@@ -173,9 +180,16 @@ class MusicalInstrument(SlugifyMixin, BaseModel):
     slug = models.SlugField(unique=True, verbose_name="Slug")
     
     description = models.TextField(null=True, blank=True, verbose_name="Tafsilot")
-    image = models.ImageField(
+    background_image = models.ImageField(
         upload_to=generate_upload_path, 
         verbose_name="Fon rasmi", 
+        validators=[file_size],
+        null=True, blank=True,
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
+    icon = models.ImageField(
+        upload_to=generate_upload_path, 
+        verbose_name="Ikonka", 
         validators=[file_size],
         null=True, blank=True,
         help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
@@ -199,7 +213,7 @@ class Direction(SlugifyMixin, BaseModel):
         null=True, blank=True,
         help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
     )
-    image = models.ImageField(
+    background_image = models.ImageField(
         upload_to=generate_upload_path, 
         verbose_name="Fon rasmi", 
         validators=[file_size],
