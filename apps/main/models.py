@@ -14,7 +14,7 @@ from apps.common.validators import file_size, file_size_50
     
     
 class School(SlugifyMixin, BaseModel):
-    domain = models.SlugField(unique=True, verbose_name="Subdomen")
+    domain = models.SlugField(verbose_name="Subdomen")
     name = models.CharField(max_length=255, verbose_name="Nomi")
     slug = models.SlugField(verbose_name="Slug")
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
@@ -42,6 +42,16 @@ class School(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Maktab "
         verbose_name_plural = "Maktablar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['domain'],
+                name='unique_school_domain',
+            ),
+            models.UniqueConstraint(
+                fields=['slug'],
+                name='unique_school_slug',
+            )
+        ]
 
 
 class SchoolLife(BaseModel):
@@ -149,7 +159,7 @@ class DirectionSchool(BaseModel):
 
 class Subject(SlugifyMixin, BaseModel):
     name = models.CharField(max_length=255, verbose_name="Nomi")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     
     description = models.TextField(null=True, blank=True, verbose_name="Tafsilot")
     background_image = models.ImageField(
@@ -173,11 +183,17 @@ class Subject(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Fan "
         verbose_name_plural = "Fanlar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['slug'],
+                name='unique_subject_slug',
+            )
+        ]
 
 
 class MusicalInstrument(SlugifyMixin, BaseModel):
     name = models.CharField(max_length=255, verbose_name="Nomi")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     
     description = models.TextField(null=True, blank=True, verbose_name="Tafsilot")
     background_image = models.ImageField(
@@ -198,11 +214,17 @@ class MusicalInstrument(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Musiqa asbobi "
         verbose_name_plural = "Musiqa asboblari"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['slug'],
+                name='unique_musicalinstrument_slug',
+            )
+        ]
 
 
 class Direction(SlugifyMixin, BaseModel):
     name = models.CharField(max_length=255, verbose_name="Nomi")
-    slug = models.SlugField(unique=True, verbose_name="Slug")
+    slug = models.SlugField(verbose_name="Slug")
     slug_source = "name"
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
     
@@ -244,6 +266,12 @@ class Direction(SlugifyMixin, BaseModel):
     class Meta:
         verbose_name = "Yo'nalish "
         verbose_name_plural = "Yo'nalishlar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['slug'],
+                name='unique_direction_slug',
+            )
+        ]
 
 
 class Teacher(SlugifyMixin, BaseModel):

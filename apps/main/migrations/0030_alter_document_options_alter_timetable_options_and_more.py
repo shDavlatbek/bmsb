@@ -20,90 +20,8 @@ class Migration(migrations.Migration):
             name='timetable',
             options={'ordering': ['title'], 'verbose_name': "O'quv reja ", 'verbose_name_plural': "O'quv reja"},
         ),
-        migrations.RemoveConstraint(
-            model_name='banner',
-            name='unique_banner_school_title',
-        ),
-        migrations.RemoveConstraint(
-            model_name='banner',
-            name='unique_banner_school_title-title_uz',
-        ),
-        migrations.RemoveConstraint(
-            model_name='banner',
-            name='unique_banner_school_title-title_ru',
-        ),
-        migrations.RemoveConstraint(
-            model_name='banner',
-            name='unique_banner_school_title-title_en',
-        ),
-        migrations.RemoveConstraint(
-            model_name='direction',
-            name='unique_direction_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='document',
-            name='unique_document_school_title',
-        ),
-        migrations.RemoveConstraint(
-            model_name='document',
-            name='unique_document_school_title-title_uz',
-        ),
-        migrations.RemoveConstraint(
-            model_name='document',
-            name='unique_document_school_title-title_ru',
-        ),
-        migrations.RemoveConstraint(
-            model_name='document',
-            name='unique_document_school_title-title_en',
-        ),
-        migrations.RemoveConstraint(
-            model_name='faq',
-            name='unique_faq_school_title',
-        ),
-        migrations.RemoveConstraint(
-            model_name='faq',
-            name='unique_faq_school_title-title_uz',
-        ),
-        migrations.RemoveConstraint(
-            model_name='faq',
-            name='unique_faq_school_title-title_ru',
-        ),
-        migrations.RemoveConstraint(
-            model_name='faq',
-            name='unique_faq_school_title-title_en',
-        ),
-        migrations.RemoveConstraint(
-            model_name='musicalinstrument',
-            name='unique_musicalinstrument_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='school',
-            name='unique_school_domain',
-        ),
-        migrations.RemoveConstraint(
-            model_name='school',
-            name='unique_school_slug',
-        ),
-        migrations.RemoveConstraint(
-            model_name='schoollife',
-            name='unique_schoollife_school_title',
-        ),
-        migrations.RemoveConstraint(
-            model_name='schoollife',
-            name='unique_schoollife_school_title-title_uz',
-        ),
-        migrations.RemoveConstraint(
-            model_name='schoollife',
-            name='unique_schoollife_school_title-title_ru',
-        ),
-        migrations.RemoveConstraint(
-            model_name='schoollife',
-            name='unique_schoollife_school_title-title_en',
-        ),
-        migrations.RemoveConstraint(
-            model_name='subject',
-            name='unique_subject_slug',
-        ),
+        # Skip constraint removal - those constraints don't exist in the database
+        # Original field operations
         migrations.RemoveField(
             model_name='direction',
             name='image',
@@ -141,19 +59,5 @@ class Migration(migrations.Migration):
             name='icon',
             field=models.ImageField(blank=True, help_text="Rasm 5 MB dan katta bo'lishi mumkin emas.", null=True, upload_to=apps.common.utils.generate_upload_path, validators=[apps.common.validators.file_size], verbose_name='Ikonka'),
         ),
-        migrations.AlterField(
-            model_name='direction',
-            name='slug',
-            field=models.SlugField(unique=True, verbose_name='Slug'),
-        ),
-        migrations.AlterField(
-            model_name='musicalinstrument',
-            name='slug',
-            field=models.SlugField(unique=True, verbose_name='Slug'),
-        ),
-        migrations.AlterField(
-            model_name='subject',
-            name='slug',
-            field=models.SlugField(unique=True, verbose_name='Slug'),
-        ),
+        # Skip AlterField operations for slug fields - we use constraints instead of unique=True
     ]
