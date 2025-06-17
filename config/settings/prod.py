@@ -4,8 +4,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-STATIC_URL = 'http://cdn.e-bmsm.uz/static/'
-MEDIA_URL  = 'http://cdn.e-bmsm.uz/media/'
+STATIC_URL = 'https://cdn.e-bmsm.uz/static/'
+MEDIA_URL  = 'https://cdn.e-bmsm.uz/media/'
 
 DATABASES = {
     'default': {
