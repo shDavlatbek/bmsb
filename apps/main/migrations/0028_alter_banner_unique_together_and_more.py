@@ -87,56 +87,8 @@ class Migration(migrations.Migration):
             field=models.SlugField(verbose_name='Slug'),
         ),
         migrations.AddConstraint(
-            model_name='banner',
-            constraint=models.UniqueConstraint(fields=('school', 'title'), name='unique_banner_school_title'),
-        ),
-        migrations.AddConstraint(
-            model_name='banner',
-            constraint=models.UniqueConstraint(fields=('school', 'title_uz'), name='unique_banner_school_title-title_uz'),
-        ),
-        migrations.AddConstraint(
-            model_name='banner',
-            constraint=models.UniqueConstraint(fields=('school', 'title_ru'), name='unique_banner_school_title-title_ru'),
-        ),
-        migrations.AddConstraint(
-            model_name='banner',
-            constraint=models.UniqueConstraint(fields=('school', 'title_en'), name='unique_banner_school_title-title_en'),
-        ),
-        migrations.AddConstraint(
             model_name='direction',
             constraint=models.UniqueConstraint(fields=('slug',), name='unique_direction_slug'),
-        ),
-        migrations.AddConstraint(
-            model_name='document',
-            constraint=models.UniqueConstraint(fields=('school', 'title'), name='unique_document_school_title'),
-        ),
-        migrations.AddConstraint(
-            model_name='document',
-            constraint=models.UniqueConstraint(fields=('school', 'title_uz'), name='unique_document_school_title-title_uz'),
-        ),
-        migrations.AddConstraint(
-            model_name='document',
-            constraint=models.UniqueConstraint(fields=('school', 'title_ru'), name='unique_document_school_title-title_ru'),
-        ),
-        migrations.AddConstraint(
-            model_name='document',
-            constraint=models.UniqueConstraint(fields=('school', 'title_en'), name='unique_document_school_title-title_en'),
-        ),
-        migrations.AddConstraint(
-            model_name='faq',
-            constraint=models.UniqueConstraint(fields=('school', 'title'), name='unique_faq_school_title'),
-        ),
-        migrations.AddConstraint(
-            model_name='faq',
-            constraint=models.UniqueConstraint(fields=('school', 'title_uz'), name='unique_faq_school_title-title_uz'),
-        ),
-        migrations.AddConstraint(
-            model_name='faq',
-            constraint=models.UniqueConstraint(fields=('school', 'title_ru'), name='unique_faq_school_title-title_ru'),
-        ),
-        migrations.AddConstraint(
-            model_name='faq',
-            constraint=models.UniqueConstraint(fields=('school', 'title_en'), name='unique_faq_school_title-title_en'),
         ),
         migrations.AddConstraint(
             model_name='leader',
@@ -153,22 +105,6 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name='school',
             constraint=models.UniqueConstraint(fields=('slug',), name='unique_school_slug'),
-        ),
-        migrations.AddConstraint(
-            model_name='schoollife',
-            constraint=models.UniqueConstraint(fields=('school', 'title'), name='unique_schoollife_school_title'),
-        ),
-        migrations.AddConstraint(
-            model_name='schoollife',
-            constraint=models.UniqueConstraint(fields=('school', 'title_uz'), name='unique_schoollife_school_title-title_uz'),
-        ),
-        migrations.AddConstraint(
-            model_name='schoollife',
-            constraint=models.UniqueConstraint(fields=('school', 'title_ru'), name='unique_schoollife_school_title-title_ru'),
-        ),
-        migrations.AddConstraint(
-            model_name='schoollife',
-            constraint=models.UniqueConstraint(fields=('school', 'title_en'), name='unique_schoollife_school_title-title_en'),
         ),
         migrations.AddConstraint(
             model_name='staff',
