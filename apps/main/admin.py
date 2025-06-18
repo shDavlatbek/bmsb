@@ -266,3 +266,36 @@ class LeaderAdmin(SchoolAdminMixin, AdminTranslation):
     list_filter = ('is_active', 'created_at')
     search_fields = ('full_name', 'position', 'description')
     prepopulated_fields = {'slug': ('full_name',)}
+
+
+class HonorAchievementsInline(TranslationTabularInline):
+    model = models.HonorAchievements
+    extra = 0
+    fields = ('year', 'description', 'address', 'is_active')
+    
+    class Media:
+        js = (
+            "admin/js/jquery.init.js",
+            "modeltranslation/js/force_jquery.js",
+            mt_settings.JQUERY_UI_URL,
+            "modeltranslation/js/tabbed_translation_fields.js",
+        )
+        css = {
+            "all": ("modeltranslation/css/tabbed_translation_fields.css", "css/admin_translation.css",),
+        }
+
+
+@admin.register(models.Honors)
+class HonorsAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
+    list_display = ('full_name', 'type', 'image_preview', 'is_active', 'created_at')
+    list_filter = ('is_active', 'type', 'created_at')
+    search_fields = ('full_name', 'description')
+    prepopulated_fields = {'slug': ('full_name',)}
+    inlines = [HonorAchievementsInline]
+    
+    def image_preview(self, obj):
+        """Display image thumbnail in list view"""
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="height: 50px; width: 50px; object-fit: cover; border-radius: 4px;" />')
+        return ""
+    image_preview.short_description = "Rasm"

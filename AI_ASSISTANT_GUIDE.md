@@ -595,6 +595,148 @@ class LeaderDetailView(IsActiveFilterMixin, SchoolScopedMixin, RetrieveAPIView):
     school_field = "school"
 ```
 
+### 7. Honors Implementation Example (Honors & HonorAchievements)
+
+**Model Example:**
+```python
+HONOR_TYPES = [
+    ('student', 'Talaba'),
+    ('teacher', 'O\'qituvchi'),
+    ('staff', 'Xodim'),
+    ('leader', 'Rahbar'),
+]
+
+class Honors(SlugifyMixin, BaseModel):
+    school = models.ForeignKey(School, on_delete=models.CASCADE,
+                              null=True, blank=True, verbose_name="Maktab",
+                              related_name="honors")
+    
+    full_name = models.CharField(max_length=255, verbose_name="F.I.O")
+    slug = models.SlugField(verbose_name="Slug")
+    slug_source = "full_name"
+    
+    type = models.CharField(max_length=50, choices=HONOR_TYPES, 
+                           default='student', verbose_name="Kim?")
+    description = HTMLField(verbose_name="Tafsilot")
+    image = models.ImageField(upload_to=generate_upload_path, verbose_name="Rasm",
+                             validators=[file_size])
+    email = models.EmailField(null=True, blank=True, verbose_name="Email")
+    phone_number = models.CharField(max_length=255, null=True, blank=True, 
+                                   verbose_name="Telefon raqami")
+    
+    class Meta:
+        verbose_name = "Faxrimiz"
+        verbose_name_plural = "Faxrlarimiz"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_honors_school_slug',
+            )
+        ]
+
+class HonorAchievements(BaseModel):
+    honor = models.ForeignKey(Honors, on_delete=models.CASCADE,
+                             verbose_name="Hojat", related_name="achievements")
+    year = models.PositiveIntegerField(verbose_name="Yil")
+    description = models.TextField(verbose_name="Tafsilot")
+    address = models.CharField(max_length=255, verbose_name="Manzil")
+```
+
+**Serializer Example:**
+```python
+class HonorAchievementsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HonorAchievements
+        fields = ['id', 'year', 'description', 'address', 'created_at']
+
+class HonorsListSerializer(serializers.ModelSerializer):
+    description = serializers.SerializerMethodField()
+    type_text = serializers.CharField(source='get_type_display', read_only=True)
+    
+    class Meta:
+        model = Honors
+        fields = ['id', 'full_name', 'slug', 'type', 'type_text', 
+                 'image', 'description', 'created_at']
+    
+    def get_description(self, obj):
+        """Strip HTML tags and truncate to 100 characters"""
+        if obj.description:
+            plain_text = strip_tags(obj.description)
+            return plain_text[:100] + '...' if len(plain_text) > 100 else plain_text
+        return ''
+
+class HonorsDetailSerializer(serializers.ModelSerializer):
+    achievements = HonorAchievementsSerializer(many=True, read_only=True)
+    type_text = serializers.CharField(source='get_type_display', read_only=True)
+    
+    class Meta:
+        model = Honors
+        fields = ['id', 'full_name', 'slug', 'type', 'type_text', 'description',
+                 'image', 'email', 'phone_number', 'achievements', 'created_at']
+```
+
+**Admin Example:**
+```python
+class HonorAchievementsInline(TranslationTabularInline):
+    model = HonorAchievements
+    extra = 1
+    fields = ('year', 'description', 'address', 'is_active')
+    
+    class Media:
+        js = (
+            "admin/js/jquery.init.js",
+            "modeltranslation/js/force_jquery.js",
+            mt_settings.JQUERY_UI_URL,
+            "modeltranslation/js/tabbed_translation_fields.js",
+        )
+        css = {
+            "all": ("modeltranslation/css/tabbed_translation_fields.css", "css/admin_translation.css",),
+        }
+
+@admin.register(Honors)
+class HonorsAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
+    list_display = ('full_name', 'type', 'image_preview', 'is_active', 'created_at')
+    list_filter = ('is_active', 'type', 'created_at')
+    search_fields = ('full_name', 'description')
+    prepopulated_fields = {'slug': ('full_name',)}
+    inlines = [HonorAchievementsInline]
+    
+    def image_preview(self, obj):
+        """Display image thumbnail in list view"""
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="height: 50px; width: 50px; object-fit: cover; border-radius: 4px;" />')
+        return ""
+    image_preview.short_description = "Rasm"
+```
+
+**Translation Configuration:**
+```python
+class HonorsTranslationOptions(TranslationOptions):
+    fields = ('full_name', 'description')
+    required_languages = ('uz',)
+
+class HonorAchievementsTranslationOptions(TranslationOptions):
+    fields = ('description', 'address')
+    required_languages = ('uz',)
+
+translator.register(Honors, HonorsTranslationOptions)
+translator.register(HonorAchievements, HonorAchievementsTranslationOptions)
+```
+
+**View Example:**
+```python
+class HonorsListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
+    queryset = Honors.objects.all()
+    serializer_class = HonorsListSerializer
+    school_field = "school"
+
+class HonorsDetailView(IsActiveFilterMixin, SchoolScopedMixin, RetrieveAPIView):
+    queryset = Honors.objects.all()
+    serializer_class = HonorsDetailSerializer
+    lookup_field = 'slug'
+    school_field = "school"
+```
+
 ---
 
 ## 🧪 Testing & Debugging
@@ -836,6 +978,7 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 - `Vacancy`: `unique_vacancy_school_slug` - Unique vacancy slugs per school
 - `Staff`: `unique_staff_school_slug` - Unique staff slugs per school
 - `Leader`: `unique_leader_school_slug` - Unique leader slugs per school
+- `Honors`: `unique_honors_school_slug` - Unique honors slugs per school
 - `Subject`: `unique_subject_slug` - Global subject slug uniqueness
 - `MusicalInstrument`: `unique_musicalinstrument_slug` - Global instrument slug uniqueness
 - `Direction`: `unique_direction_slug` - Global direction slug uniqueness
@@ -855,6 +998,7 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 - `DocumentCategory` - Global categories, basic model
 - `MediaImage`, `MediaVideo` - Child models, uniqueness handled at parent level
 - `TeacherExperience` - Child model of Teacher
+- `HonorAchievements` - Child model of Honors
 - `User` - User model, no uniqueness constraints needed
 - `DirectionSchool` - Relationship model
 - `Menu` - Removed constraints as requested (titles can be duplicate)

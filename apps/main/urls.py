@@ -11,6 +11,7 @@ from .views.document import DocumentListView, DocumentCategoryListView
 from .views.timetable import TimeTableListView
 from .views.staff import StaffListView
 from .views.leader import LeaderListView, LeaderDetailView
+from .views.honor import HonorsListView, HonorsDetailView
 
 urlpatterns = [
     path('menus/', MenuView.as_view(), name='menu'),
@@ -45,5 +46,9 @@ urlpatterns = [
     # Leader endpoints
     path('leaders/', LeaderListView.as_view(), name='leader-list'),
     path('leaders/<slug:slug>/', LeaderDetailView.as_view(), name='leader-detail'),
+    
+    # Honor endpoints
+    path('honors/', HonorsListView.as_view(), name='honors-list'),
+    path('honors/<slug:slug>/', HonorsDetailView.as_view(), name='honors-detail'),
 ]
 

@@ -553,6 +553,75 @@ class Document(BaseModel):
         verbose_name_plural = "Hujjatlar"
         
 
+HONOR_TYPES = [
+    ('student', 'Talaba'),
+    ('teacher', 'O\'qituvchi'),
+    ('staff', 'Xodim'),
+    ('leader', 'Rahbar'),
+]
+
+
+class Honors(SlugifyMixin, BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="honors",
+    )
+    
+    full_name = models.CharField(max_length=255, verbose_name="F.I.O")
+    slug = models.SlugField(verbose_name="Slug")
+    slug_source = "full_name"
+    
+    type = models.CharField(
+        max_length=50,
+        choices=HONOR_TYPES,
+        default='student', 
+        verbose_name="Kim?"
+    )
+    
+    description = HTMLField(verbose_name="Tafsilot")
+    image = models.ImageField(
+        upload_to=generate_upload_path,
+        verbose_name="Rasm",
+        validators=[file_size],
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    ) 
+    email = models.EmailField(null=True, blank=True, verbose_name="Email")
+    phone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name="Telefon raqami")
+    
+    def __str__(self):
+        return self.full_name
+    
+    class Meta:
+        verbose_name = "Faxrimiz "
+        verbose_name_plural = "Faxrlarimiz"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_honors_school_slug',
+            )
+        ]
+
+
+class HonorAchievements(BaseModel):
+    honor = models.ForeignKey(
+        Honors, on_delete=models.CASCADE,
+        verbose_name="Hojat",
+        related_name="achievements",
+    )
+    year = models.PositiveIntegerField(verbose_name="Yil")
+    description = models.TextField(verbose_name="Tafsilot")
+    address = models.CharField(max_length=255, verbose_name="Manzil")
+    
+    def __str__(self):
+        return f"{self.honor.full_name} - {self.year}"
+    
+    class Meta:
+        verbose_name = "Yutuq "
+        verbose_name_plural = "Yutuqlar"
+
+
 # Signal to create default instances when a new School is created
 @receiver(post_save, sender=School)
 def create_school_defaults(sender, instance, created, **kwargs):
