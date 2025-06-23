@@ -569,6 +569,12 @@ class Honors(SlugifyMixin, BaseModel):
         related_name="honors",
     )
     
+    image = models.ImageField(
+        upload_to=generate_upload_path,
+        verbose_name="Rasm",
+        validators=[file_size],
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
     full_name = models.CharField(max_length=255, verbose_name="F.I.O")
     slug = models.SlugField(verbose_name="Slug")
     slug_source = "full_name"
@@ -579,14 +585,8 @@ class Honors(SlugifyMixin, BaseModel):
         default='student', 
         verbose_name="Kim?"
     )
-    
     description = HTMLField(verbose_name="Tafsilot")
-    image = models.ImageField(
-        upload_to=generate_upload_path,
-        verbose_name="Rasm",
-        validators=[file_size],
-        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
-    ) 
+     
     email = models.EmailField(null=True, blank=True, verbose_name="Email")
     phone_number = models.CharField(max_length=255, null=True, blank=True, verbose_name="Telefon raqami")
     

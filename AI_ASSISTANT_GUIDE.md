@@ -13,6 +13,7 @@
 6. **IMPORTANT**: School field should ONLY be in models - NEVER include `school` field in serializers (it's automatically filtered by mixins)
 7. **ALWAYS** add `constraints = [models.UniqueConstraint(...)]` for school-scoped models when needed
 8. **NEVER** use `unique=True` on slug fields - use constraints instead
+9. **ALWAYS** check `/api/docs/` after API changes to ensure documentation is updated
 
 ### **Constraints Rule (Updated):**
 - **Models with school + slug**: 
@@ -49,6 +50,7 @@
 4. Include all necessary imports
 5. Create complete implementation (model + admin + serializer + view + URL)
 6. **NEVER include school field in serializers** - it's handled automatically by security mixins
+7. **CHECK API DOCUMENTATION** - After implementing any API endpoints, check `/api/docs/` to ensure the custom Swagger documentation is up to date
 
 ### **File Upload Handling:**
 - **File conflicts**: The `generate_upload_path` function in `apps/common/utils.py` automatically handles duplicate filenames by appending an 8-character UUID suffix
@@ -1192,3 +1194,11 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 ---
 
 **Remember**: BMSB is security-first, multi-tenant system. Every piece of code must respect tenant boundaries and use the established patterns. When in doubt, favor more security mixins rather than fewer! 
+
+### **Custom API Documentation (IMPORTANT):**
+- **Location**: `/api/docs/` 
+- **Purpose**: Beautiful, interactive API documentation in Uzbek
+- **Update Required**: After adding/modifying any API endpoints, check if the documentation needs updates
+- **File**: `apps/common/views.py` - `APIDocumentationView` class contains endpoint definitions
+- **Template**: `apps/common/templates/api_documentation.html`
+- **Features**: Live testing, Uzbek interface, organized by sections

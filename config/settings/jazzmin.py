@@ -57,29 +57,70 @@ JAZZMIN_SETTINGS: dict = {
     'hide_models': [],
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
 
-    'order_with_respect_to': ['auth', 'user', 'main', 'main.school', 'main.menu', 'main.banner', 'main.schoollife' ],
+    'order_with_respect_to': [
+        'auth', 'user', 
+        'main', 'main.school', 'main.menu', 'main.banner', 'main.schoollife', 
+        'main.directionschool', 'main.subject', 'main.musicalinstrument', 'main.direction', 'main.teacher',
+        'main.faq', 'main.vacancy', 'main.staff', 'main.leader', 'main.timetable', 'main.documentcategory', 'main.document', 'main.honors', 'main.honorachievements',
+        'news', 'news.category', 'news.news',
+        'media', 'media.mediacollection', 'media.mediaimage', 'media.mediavideo',
+        'resource', 'resource.resourcevideo', 'resource.resourcefile',
+        'common', 'common.tinymceimage',
+    ],
     # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.10,5.0.11,5.0.12,5.0.13,5.0.2,5.0.3,5.0.4,5.0.5,5.0.6,5.0.7,5.0.8,5.0.9,5.1.0,5.1.1,5.2.0,5.3.0,5.3.1,5.4.0,5.4.1,5.4.2,5.13.0,5.12.0,5.11.2,5.11.1,5.10.0,5.9.0,5.8.2,5.8.1,5.7.2,5.7.1,5.7.0,5.6.3,5.5.0,5.4.2
     # for the full list of 5.13.0 free icon classes
     'icons': {
+        # Apps
         'auth': 'fas fa-users-cog',
+        'main': 'fas fa-school',
+        'news': 'fas fa-newspaper',
+        'media': 'fas fa-photo-video',
+        'resource': 'fas fa-book',
+        'user': 'fas fa-user-shield',
+        'common': 'fas fa-cogs',
+        
+        # Auth models
+        'auth.Group': 'fas fa-users',
+        
+        # User models
+        'user.user': 'fas fa-user-tie',
+        
+        # Main app models
         'main.school': 'fas fa-school',
-        'user.user': 'fas fa-duotone fa-user-tie',
-        'main.menu': 'fas fa-grip-lines',
-        'auth.Group': 'fas fa-duotone fa-users',
-        'main.banner': 'fas fa-duotone fa-image',
-        'main.schoollife': 'fas fa-book-medical',
-        # 'artist.Category': 'fas fa-grip-lines',
-        # 'artist.Artist': 'fas fa-users',
-        # 'artist.Project': 'fas fa-vote-yea',
-
-        # 'common.Contact': 'fas fa-address-card',
-        # 'common.Menu': 'fas fa-grip-lines',
-        # 'common.SocialMedia': 'fas fa-share-alt-square',
-        # 'common.Organizer': 'fas fa-sitemap',
-        # 'common.About': 'fas fa-info-circle',
-        # 'common.Statistic': 'fas fa-chart-line',
-        # 'common.Policy': 'fas fa-info',
-
+        'main.schoollife': 'fas fa-images',
+        'main.menu': 'fas fa-bars',
+        'main.banner': 'fas fa-image',
+        'main.directionschool': 'fas fa-sitemap',
+        'main.subject': 'fas fa-book-open',
+        'main.musicalinstrument': 'fas fa-music',
+        'main.direction': 'fas fa-compass',
+        'main.teacher': 'fas fa-chalkboard-teacher',
+        'main.teacherexperience': 'fas fa-briefcase',
+        'main.faq': 'fas fa-question-circle',
+        'main.vacancy': 'fas fa-user-plus',
+        'main.staff': 'fas fa-id-card',
+        'main.leader': 'fas fa-user-tie',
+        'main.timetable': 'fas fa-calendar-alt',
+        'main.documentcategory': 'fas fa-folder',
+        'main.document': 'fas fa-file-pdf',
+        'main.honors': 'fas fa-medal',
+        'main.honorachievements': 'fas fa-trophy',
+        
+        # News app models
+        'news.category': 'fas fa-tags',
+        'news.news': 'fas fa-newspaper',
+        
+        # Media app models
+        'media.mediacollection': 'fas fa-folder-open',
+        'media.mediaimage': 'fas fa-camera',
+        'media.mediavideo': 'fas fa-video',
+        
+        # Resource app models
+        'resource.resourcevideo': 'fas fa-play-circle',
+        'resource.resourcefile': 'fas fa-file-download',
+        
+        # Common app models
+        'common.tinymceimage': 'fas fa-image',
     },
     # Icons that are used when one is not manually specified
     'default_icon_parents': 'fas fa-chevron-circle-right',
