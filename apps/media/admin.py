@@ -31,6 +31,8 @@ class MediaCollectionAdmin(SchoolAdminMixin, AdminTranslation):
     search_fields = ('title',)
     ordering = ('-created_at',)
     
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
     
     inlines = [MediaImageInline]
     
@@ -68,6 +70,9 @@ class MediaVideoAdmin(AdminTranslation):
     list_display_links = ('title',)
     list_filter = ('is_active', 'created_at')
     ordering = ('-created_at',)
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
     
     readonly_fields = ('video_preview',)
     

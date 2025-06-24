@@ -10,6 +10,9 @@ class CategoryAdmin(SchoolAdminMixin, AdminTranslation):
     prepopulated_fields = {
         'slug': ('name',),
     }
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
 
 
 @admin.register(News)
@@ -20,6 +23,9 @@ class NewsAdmin(SchoolAdminMixin, DescriptionMixin, AdminTranslation):
     prepopulated_fields = {
         'slug': ('title',),
     }
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
     
     # search_fields = ['title', 'description']
     readonly_fields = ['view_count']

@@ -16,6 +16,9 @@ class ResourceVideoAdmin(SchoolAdminMixin, AdminTranslation):
     ordering = ('-created_at',)
     readonly_fields = ('view_count', 'video_preview')
     
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+    
     # fieldsets = (
     #     ('Asosiy ma\'lumotlar 📌', {
     #         'fields': ('title', 'is_active')
@@ -125,3 +128,6 @@ class ResourceFileAdmin(SchoolAdminMixin, AdminTranslation):
             )
         return ""
     file_preview.short_description = ""
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser

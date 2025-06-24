@@ -7,15 +7,15 @@ from django.contrib.auth.models import Group
 
 admin.site.unregister(Group)
 
-@admin.register(Group)
-class GroupAdmin(GroupAdmin):
-    readonly_fields = ('name',)
+# @admin.unregister(Group)
+# class GroupAdmin(GroupAdmin):
+#     readonly_fields = ('name',)
     
-    def has_add_permission(self, request):
-        return False
+#     def has_add_permission(self, request):
+#         return False
     
-    def has_delete_permission(self, request, obj=None):
-        return False
+#     def has_delete_permission(self, request, obj=None):
+#         return False
 
     # def has_change_permission(self, request, obj=None):
     #     return False

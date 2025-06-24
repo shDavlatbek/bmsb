@@ -15,6 +15,9 @@ class MenuAdmin(SchoolAdminMixin, AdminTranslation, DraggableMPTTAdmin):
         css = {
             'screen': ('css/admin_menu.css',),
         }
+        
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
 
 
 @admin.register(models.School)
@@ -60,6 +63,9 @@ class BannerAdmin(SchoolAdminMixin, AdminTranslation):
     search_fields = ('title',)
     list_filter = ('is_active',)
     list_display_links = ('image_tag', 'title')
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
 
 
 @admin.register(models.SchoolLife)
@@ -69,6 +75,9 @@ class SchoolLifeAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
     list_filter = ('is_active',)
     list_display_links = ('image_tag', 'title')
     
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+
 
 @admin.register(models.Direction)
 class DirectionAdmin(DescriptionMixin, AdminTranslation):
@@ -90,8 +99,8 @@ class DirectionAdmin(DescriptionMixin, AdminTranslation):
     
     def image_preview(self, obj):
         """Display image thumbnail in list view"""
-        if obj.image:
-            return mark_safe(f'<img src="{obj.image.url}" style="height: 30px; width: 50px; object-fit: cover; border-radius: 4px;" />')
+        if obj.background_image:
+            return mark_safe(f'<img src="{obj.background_image.url}" style="height: 30px; width: 50px; object-fit: cover; border-radius: 4px;" />')
         return ""
     image_preview.short_description = "Fon rasmi"
     
@@ -160,6 +169,7 @@ class TeacherExperienceInline(TranslationTabularInline):
         css = {
             "all": ("modeltranslation/css/tabbed_translation_fields.css", "css/admin_translation.css",),
         }
+            
 
 @admin.register(models.Teacher)
 class TeacherAdmin(DescriptionMixin, SchoolAdminMixin, admin.ModelAdmin):
@@ -171,26 +181,20 @@ class TeacherAdmin(DescriptionMixin, SchoolAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {
         'slug': ('full_name',),
     }
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+    
 
 @admin.register(models.DirectionSchool)
 class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+    
     def has_add_permission(self, request):
-        # Allow adding only if there's no existing DirectionSchool for the current school
-        if request.user.is_superuser:
-            return False
-        
-        # For non-superusers, check if DirectionSchool already exists for their school
-        if hasattr(request.user, 'school_id') and request.user.school_id:
-            existing_instance = models.DirectionSchool.objects.filter(school_id=request.user.school_id).exists()
-            return not existing_instance
-        
         return False
     
     def has_delete_permission(self, request, obj=None):
-        # Allow superusers to delete, but prevent regular users from deleting
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
         return False
     
 
@@ -199,15 +203,9 @@ class FAQAdmin(SchoolAdminMixin, AdminTranslation):
     list_display = ('title', 'is_active',)
     list_filter = ('is_active',)
     search_fields = ('title', 'description',)
-    
-    # fieldsets = (
-    #     ('Asosiy ma\'lumotlar 📌', {
-    #         'fields': ('school', 'title', 'is_active')
-    #     }),
-    #     ('Javob 💬', {
-    #         'fields': ('description',)
-    #     }),
-    # )
+
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
 
 
 @admin.register(models.Vacancy)
@@ -221,6 +219,9 @@ class VacancyAdmin(SchoolAdminMixin, AdminTranslation):
         """Override form to show choice labels in admin"""
         form = super().get_form(request, obj, **kwargs)
         return form
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
 
 
 @admin.register(models.Document)
@@ -229,6 +230,9 @@ class DocumentAdmin(SchoolAdminMixin, AdminTranslation):
     list_filter = ('is_active', 'category', 'created_at')
     search_fields = ('title',)
 
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+
 
 @admin.register(models.TimeTable)
 class TimeTableAdmin(SchoolAdminMixin, AdminTranslation):
@@ -236,20 +240,24 @@ class TimeTableAdmin(SchoolAdminMixin, AdminTranslation):
     list_filter = ('is_active',)
     search_fields = ('title',)
     
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+    
     def has_add_permission(self, request):
-        # Prevent adding new timetables (they should be created automatically)
         return False
     
     def has_delete_permission(self, request, obj=None):
-        # Prevent deleting timetables
         return False
 
 
 @admin.register(models.DocumentCategory)
-class DocumentCategoryAdmin(AdminTranslation):
+class DocumentCategoryAdmin(SchoolAdminMixin, AdminTranslation):
     list_display = ('name', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
     search_fields = ('name',)
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
 
 
 @admin.register(models.Staff)
@@ -259,6 +267,9 @@ class StaffAdmin(SchoolAdminMixin, AdminTranslation):
     search_fields = ('full_name', 'position')
     prepopulated_fields = {'slug': ('full_name',)}
 
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+
 
 @admin.register(models.Leader)
 class LeaderAdmin(SchoolAdminMixin, AdminTranslation):
@@ -266,6 +277,9 @@ class LeaderAdmin(SchoolAdminMixin, AdminTranslation):
     list_filter = ('is_active', 'created_at')
     search_fields = ('full_name', 'position', 'description')
     prepopulated_fields = {'slug': ('full_name',)}
+
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
 
 
 class HonorAchievementsInline(TranslationTabularInline):
@@ -283,6 +297,9 @@ class HonorAchievementsInline(TranslationTabularInline):
         css = {
             "all": ("modeltranslation/css/tabbed_translation_fields.css", "css/admin_translation.css",),
         }
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
 
 
 @admin.register(models.Honors)
@@ -292,6 +309,9 @@ class HonorsAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
     search_fields = ('full_name', 'description')
     prepopulated_fields = {'slug': ('full_name',)}
     inlines = [HonorAchievementsInline]
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
     
     def image_preview(self, obj):
         """Display image thumbnail in list view"""
