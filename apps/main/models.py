@@ -8,13 +8,11 @@ from django.utils.safestring import mark_safe
 from django.core.validators import FileExtensionValidator
 from apps.common.models import BaseModel
 from apps.common.utils import generate_upload_path
-from apps.common.validators import file_size, file_size_50
-
-
+from apps.common.validators import file_size, file_size_50, validate_subdomain
     
     
 class School(SlugifyMixin, BaseModel):
-    domain = models.SlugField(verbose_name="Subdomen")
+    domain = models.SlugField(verbose_name="Subdomen", validators=[validate_subdomain])
     name = models.CharField(max_length=255, verbose_name="Nomi")
     slug = models.SlugField(verbose_name="Slug")
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")

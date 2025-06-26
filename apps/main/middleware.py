@@ -4,25 +4,22 @@ from django.utils.deprecation import MiddlewareMixin
 from apps.main.models import School
 
 class SubdomainMiddleware(MiddlewareMixin):
-    MAIN_SITE_SUBDOMAINS = {"www", ""}
-
     def process_request(self, request):
-        host = request.get_host().split(":")[0]
-        parts = host.split(".")
+        # Initialize request attributes
         request.subdomain = None
-        request.school    = None
-
-        if len(parts) > 2:
-            sub = parts[0]
-        elif len(parts) == 2:
-            sub = ""
-        else:
-            sub = parts[0]
-
-        if sub not in self.MAIN_SITE_SUBDOMAINS:
-            request.subdomain = sub
+        request.school = None
+        
+        # Check for School header from frontend
+        school_header = request.META.get('HTTP_SCHOOL', None)
+        
+        # If header exists and not empty
+        if school_header and school_header.strip():
+            # Use the header value as subdomain
+            subdomain = school_header.lower().strip()
+            request.subdomain = subdomain
+            
             try:
-                school = School.objects.get(domain=sub)
+                school = School.objects.get(domain=subdomain)
                 if school.is_active:
                     request.school = school
                 else:
@@ -36,3 +33,5 @@ class SubdomainMiddleware(MiddlewareMixin):
                 # Only catch other exceptions, not Http404
                 print(f"Unexpected error in SubdomainMiddleware: {e}")
                 # Don't set request.school, leaving it as None
+        
+        # If no header or empty, subdomain and school remain None

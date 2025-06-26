@@ -2,8 +2,7 @@ import re
 import requests
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-
-
+from config.settings.base import NOT_ALLOWED_SUBDOMAINS
 
 
 def file_size(value):
@@ -15,6 +14,10 @@ def file_size_50(value):
     limit = 50 * 1024 * 1024
     if value.size > limit:
         raise ValidationError('Fayl 50 MB dan katta bo\'lishi mumkin emas.') 
+
+def validate_subdomain(value):
+    if value in NOT_ALLOWED_SUBDOMAINS:
+        raise ValidationError("Bunaqa subdomain nomi qo'yish mumkin emas")
 
 def validate_youtube_link(value):
     """
