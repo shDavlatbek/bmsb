@@ -1,5 +1,5 @@
 # apps/core/middleware.py
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.utils.deprecation import MiddlewareMixin
 from apps.main.models import School
 
@@ -37,12 +37,9 @@ class SubdomainMiddleware(MiddlewareMixin):
                 if school.is_active:
                     request.school = school
                 else:
-                    raise Http404("Maktab faol emas")
+                    return HttpResponse("Maktab faol emas", status=403)
             except School.DoesNotExist:
-                raise Http404("Maktab topilmadi")
-            except Http404:
-                # Re-raise Http404 exceptions to properly display 404 pages
-                raise
+                return HttpResponse("Maktab topilmadi", status=403)
             except Exception as e:
                 # Only catch other exceptions, not Http404
                 print(f"Unexpected error in SubdomainMiddleware: {e}")
