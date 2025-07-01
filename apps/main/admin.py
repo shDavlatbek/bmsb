@@ -7,7 +7,7 @@ from modeltranslation import settings as mt_settings
 from django.utils.translation import gettext_lazy as _
 from . import models
 from django.utils.safestring import mark_safe
-
+from django import forms
 
 @admin.register(models.Menu)
 class MenuAdmin(SchoolAdminMixin, AdminTranslation, DraggableMPTTAdmin):
@@ -186,16 +186,60 @@ class TeacherAdmin(DescriptionMixin, SchoolAdminMixin, admin.ModelAdmin):
         return not request.user.is_superuser
     
 
+class DirectionSchoolForm(forms.ModelForm):
+    class Meta:
+        model  = models.DirectionSchool
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop("request", None)    # Make request optional
+        super().__init__(*args, **kwargs)
+
+        if request and hasattr(request, 'user') and request.user.is_authenticated and not request.user.is_superuser:
+            school = getattr(request.user, 'school', None)
+            if school:
+                # IDs already chosen by *this* school
+                taken = models.DirectionSchool.objects.filter(
+                    school=school
+                ).values_list("direction_id", flat=True)
+
+                # Offer only directions that are *not* taken
+                if "direction" in self.fields:
+                    self.fields["direction"].queryset = models.Direction.objects.exclude(id__in=taken)
+
+                # School is implicit – hide the field and fix its value (if field exists)
+                if "school" in self.fields:
+                    self.fields["school"].initial = school
+                    self.fields["school"].widget = forms.HiddenInput()
+            
+
 @admin.register(models.DirectionSchool)
-class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, admin.ModelAdmin):
+class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
+    form = DirectionSchoolForm
+    list_display = ("direction", "founded_year", "student_count", "is_active", "created_at")
+    list_filter = ("is_active", "created_at")
+    search_fields = ("direction__name", "description")
+
+    # inject `request` into the form so we can filter choices
+    def get_form(self, request, obj=None, **kwargs):
+        form_class = super().get_form(request, obj, **kwargs)
+        
+        class RequestForm(form_class):
+            def __init__(self, *args, **kwargs):
+                kwargs['request'] = request
+                super().__init__(*args, **kwargs)
+        
+        return RequestForm
+
+    # hide module from super-admins if you really want to
     def has_module_permission(self, request):
         return not request.user.is_superuser
-    
-    def has_add_permission(self, request):
-        return False
-    
-    def has_delete_permission(self, request, obj=None):
-        return False
+
+    # always set / lock the school to the current user's school
+    def save_model(self, request, obj, form, change):
+        if not request.user.is_superuser:
+            obj.school = request.user.school
+        super().save_model(request, obj, form, change)
     
 
 @admin.register(models.FAQ)

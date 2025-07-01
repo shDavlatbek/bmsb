@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Direction, Subject, MusicalInstrument, Teacher
+from ..models import DirectionSchool, Subject, MusicalInstrument, Teacher
 
 
 class SubjectSerializer(serializers.ModelSerializer):
@@ -21,20 +21,47 @@ class TeacherBasicSerializer(serializers.ModelSerializer):
 
 
 class DirectionListSerializer(serializers.ModelSerializer):
+    # Direction fields accessed through the direction relationship
+    name = serializers.CharField(source='direction.name', read_only=True)
+    slug = serializers.CharField(source='direction.slug', read_only=True)
+    icon = serializers.ImageField(source='direction.icon', read_only=True)
+    background_image = serializers.ImageField(source='direction.background_image', read_only=True)
+    
     class Meta:
-        model = Direction
+        model = DirectionSchool
         fields = ['id', 'name', 'slug', 'icon', 'background_image', 'founded_year', 'student_count', 'teacher_count', 'created_at']
 
 
 class DirectionDetailSerializer(serializers.ModelSerializer):
+    # Direction fields accessed through the direction relationship
+    name = serializers.CharField(source='direction.name', read_only=True)
+    slug = serializers.CharField(source='direction.slug', read_only=True)
+    icon = serializers.ImageField(source='direction.icon', read_only=True)
+    background_image = serializers.ImageField(source='direction.background_image', read_only=True)
+    
+    # DirectionSchool relationships
     subjects = SubjectSerializer(many=True, read_only=True)
     musical_instruments = MusicalInstrumentSerializer(many=True, read_only=True)
-    teachers = TeacherBasicSerializer(many=True, read_only=True)
+    
+    # Teachers that belong to this direction and school
+    teachers = serializers.SerializerMethodField()
     
     class Meta:
-        model = Direction
+        model = DirectionSchool
         fields = [
             'id', 'name', 'slug', 'description', 'icon', 'background_image', 'founded_year', 
             'student_count', 'teacher_count', 'subjects', 
             'musical_instruments', 'teachers', 'created_at'
-        ] 
+        ]
+    
+    def get_teachers(self, obj):
+        """Get teachers that belong to this direction and the same school"""
+        if obj.school:
+            # Get teachers from the same school that teach this direction
+            teachers = Teacher.objects.filter(
+                school=obj.school,
+                directions=obj.direction,
+                is_active=True
+            )
+            return TeacherBasicSerializer(teachers, many=True).data
+        return [] 

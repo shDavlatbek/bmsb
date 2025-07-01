@@ -131,28 +131,6 @@ class Banner(BaseModel):
     class Meta:
         verbose_name = "Banner "
         verbose_name_plural = "Bannerlar"
-        
-
-class DirectionSchool(BaseModel):
-    school = models.ForeignKey(
-        School, on_delete=models.CASCADE,
-        verbose_name="Maktab",
-        related_name="directions",
-        null=True, blank=True,
-    )
-    directions = models.ManyToManyField(
-        'Direction',
-        verbose_name="Yo'nalishlar",
-        related_name="direction_schools",
-        blank=True
-    )
-    
-    def __str__(self):
-        return "Yo'nalishlar"
-    
-    class Meta:
-        verbose_name = "Maktab yo'nalishlari "
-        verbose_name_plural = "Maktab yo'nalishlari"
 
 
 class Subject(SlugifyMixin, BaseModel):
@@ -224,7 +202,7 @@ class Direction(SlugifyMixin, BaseModel):
     name = models.CharField(max_length=255, verbose_name="Nomi")
     slug = models.SlugField(verbose_name="Slug")
     slug_source = "name"
-    description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
+    
     
     icon = models.ImageField(
         upload_to=generate_upload_path, 
@@ -241,6 +219,36 @@ class Direction(SlugifyMixin, BaseModel):
         help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
     )
     
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "Yo'nalish "
+        verbose_name_plural = "Yo'nalishlar"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['slug'],
+                name='unique_direction_slug',
+            )
+        ]
+
+
+
+class DirectionSchool(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        verbose_name="Maktab",
+        related_name="directions",
+        null=True, blank=True,
+    )
+    direction = models.ForeignKey(
+        Direction,
+        verbose_name="Yo'nalish",
+        related_name="direction_schools",
+        on_delete=models.CASCADE,
+    )
+    
+    description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
     founded_year = models.SmallIntegerField(null=True, blank=True, verbose_name="Ishga tushgan yili")
     student_count = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'quvchilar soni")
     teacher_count = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'qituvchilar soni")
@@ -259,17 +267,20 @@ class Direction(SlugifyMixin, BaseModel):
     )
     
     def __str__(self):
-        return self.name
+        return self.direction.name
     
     class Meta:
-        verbose_name = "Yo'nalish "
-        verbose_name_plural = "Yo'nalishlar"
+        verbose_name_plural = "Maktab yo‘nalishlari"
         constraints = [
             models.UniqueConstraint(
-                fields=['slug'],
-                name='unique_direction_slug',
+                fields=("school", "direction"),
+                name="unique_school_direction",
             )
         ]
+    
+    class Meta:
+        verbose_name = "Maktab yo'nalishlari "
+        verbose_name_plural = "Maktab yo'nalishlari"
 
 
 class Teacher(SlugifyMixin, BaseModel):
@@ -724,9 +735,6 @@ def create_school_defaults(sender, instance, created, **kwargs):
                     url=child_data["url"],
                     parent=parent_menu
                 )
-        
-        # Create a DirectionSchool instance for the new school
-        DirectionSchool.objects.create(school=instance)
         
         # Create TimeTable instances for the new school with translations
         
