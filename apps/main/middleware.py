@@ -4,10 +4,24 @@ from django.utils.deprecation import MiddlewareMixin
 from apps.main.models import School
 
 class SubdomainMiddleware(MiddlewareMixin):
+    
+    # List of URL patterns that should be excluded from school checking
+    EXCLUDED_PATHS = [
+        '/admin/',
+        '/api/check-school/',
+    ]
+    
     def process_request(self, request):
         # Initialize request attributes
         request.subdomain = None
         request.school = None
+        
+        # Check if current path should be excluded from school checking
+        current_path = request.path
+        for excluded_path in self.EXCLUDED_PATHS:
+            if current_path.startswith(excluded_path):
+                # Skip school checking for excluded paths
+                return
         
         # Check for School header from frontend
         school_header = request.META.get('HTTP_SCHOOL', None)

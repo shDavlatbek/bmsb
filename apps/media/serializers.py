@@ -16,10 +16,11 @@ class MediaCollectionListSerializer(serializers.ModelSerializer):
     Returns first show_in_main image or first image if no show_in_main exists.
     """
     image = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
     
-    class Meta:
+    class Meta: 
         model = MediaCollection
-        fields = ['id', 'title', 'slug', 'image', 'created_at']
+        fields = ['id', 'title', 'slug', 'image', 'count', 'created_at']
     
     def get_image(self, obj):
         """
@@ -35,6 +36,15 @@ class MediaCollectionListSerializer(serializers.ModelSerializer):
                     return request.build_absolute_uri(first_image.image.url)
                 return first_image.image.url
         return None
+
+    def get_count(self, obj):
+        """
+        Return the total number of images in this collection.
+        """
+        # Use the prefetched ordered_images if available, otherwise count from the database
+        if hasattr(obj, 'ordered_images'):
+            return len(obj.ordered_images)
+        return obj.media_images.count()
 
 
 class MediaCollectionDetailSerializer(serializers.ModelSerializer):

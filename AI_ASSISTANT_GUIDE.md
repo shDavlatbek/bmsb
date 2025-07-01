@@ -57,6 +57,12 @@
 - **Path format**: `<app>/<model>/<Y/m/d>/<filename>` (adds `-<8-char-uuid>` only if there's a clash)
 - **Example**: `image.png` → `image-a1b2c3d4.png` if original exists
 
+### **Middleware Updates (Header-Based School Identification):**
+- **Changed**: SubdomainMiddleware now uses header-based school identification instead of URL parsing
+- **Header Name**: `School` (e.g., `School: mk1`)
+- **No Fallback**: If no header provided, school context remains `None` (no URL/subdomain checking)
+- **Swagger Integration**: Global School header with default value `test` for easy API testing
+
 ---
 
 ## 📋 Table of Contents
@@ -103,13 +109,45 @@ bmsb/
 
 ## 🏗️ Architecture Fundamentals
 
-### 1. Multi-Tenant Flow
+### 1. Multi-Tenant Flow (Updated)
 ```
-1. Request → SubdomainMiddleware → Extract school from subdomain
-2. Middleware → Sets request.school context  
+1. Request → SubdomainMiddleware → Extract school from header
+2. Middleware → Sets request.school context based on 'School' header
 3. View → Mixins automatically filter data by school
 4. Response → Only current school's data accessible
 ```
+
+#### **Header-Based School Identification**
+The middleware now uses a simplified header-based approach:
+- Frontend sends `School: mk1` header (where `mk1` is the school subdomain)
+- No more URL/subdomain parsing - only header checking
+- If no header or empty, both `request.school` and `request.subdomain` remain `None`
+
+**Example Frontend Request:**
+```javascript
+fetch('https://api.example.com/api/news/', {
+    headers: {
+        'School': 'mk1',  // Specify the school subdomain
+        'Content-Type': 'application/json'
+    }
+})
+```
+
+#### **Swagger UI Global Header Support**
+For easy API testing, Swagger UI includes a global `School` header on all endpoints:
+
+- **Location**: `/api/swagger/` - Available on every API endpoint
+- **Description**: "Maktab subdomain (toshken1, mk1)"
+- **Default Value**: `test` (for development/testing)
+- **Required**: No (optional header)
+
+**How to use in Swagger:**
+1. Navigate to any API endpoint in Swagger UI
+2. Find the "School" header parameter field
+3. Enter the school subdomain (e.g., `mk1`, `toshken1`) or leave as `test`
+4. Execute the request
+
+This makes testing multi-tenant functionality easy without manually adding headers!
 
 ### 2. Data Models Hierarchy
 ```
@@ -122,7 +160,7 @@ School (Tenant Root)
 ```
 
 ### 3. Security Layers
-1. **Middleware**: Subdomain → School resolution
+1. **Middleware**: Header-based school resolution (`School` header → School lookup)
 2. **Mixins**: Automatic data filtering and permission checks  
 3. **Admin**: Role-based access with school scoping
 4. **Database**: Unique constraints and proper foreign keys

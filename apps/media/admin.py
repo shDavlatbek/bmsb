@@ -3,9 +3,10 @@ from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 from apps.common.mixins import SchoolAdminMixin, AdminTranslation, DescriptionMixin
 from .models import MediaCollection, MediaImage, MediaVideo
+from modeltranslation.admin import TranslationStackedInline
 
 
-class MediaImageInline(admin.TabularInline):
+class MediaImageInline(admin.StackedInline):
     """Inline for managing images within a collection"""
     model = MediaImage
     extra = 1
@@ -27,6 +28,7 @@ class MediaCollectionAdmin(SchoolAdminMixin, AdminTranslation):
     """Admin interface for Media Collections with school scoping and translation support"""
     
     list_display = ('title', 'image_count', 'is_active', 'created_at')
+    prepopulated_fields = {'slug': ('title',)}
     list_filter = ('is_active', 'created_at')
     search_fields = ('title',)
     ordering = ('-created_at',)
@@ -59,6 +61,9 @@ class MediaCollectionAdmin(SchoolAdminMixin, AdminTranslation):
         """Optimize queryset with prefetch for image counts"""
         qs = super().get_queryset(request)
         return qs.prefetch_related('media_images')
+    
+    class Media:
+        js = ('js/admin_media.js',)
 
 
 

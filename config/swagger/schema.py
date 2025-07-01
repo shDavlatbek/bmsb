@@ -17,6 +17,7 @@ class BothHttpAndHttpsSchemaGenerator(OpenAPISchemaGenerator):
             type=openapi.TYPE_STRING,
             description='Maktab subdomain (toshken1, mk1)',
             required=False,
+            default='mk1'
         )
         
         # Iterate over all paths and operations

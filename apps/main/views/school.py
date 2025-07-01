@@ -3,11 +3,36 @@ from rest_framework.response import Response
 from rest_framework.generics import RetrieveAPIView
 from apps.common.mixins import IsActiveFilterMixin
 from apps.main.serializers.school import SchoolSerializer
+from apps.main.models import School
+from django.http import Http404
 
 
 class CheckSchoolView(APIView):
     def get(self, request):
-        return Response({'school': request.school.slug if request.school else None})
+        res = False
+        school_header = request.META.get('HTTP_SCHOOL', None)
+        if school_header and school_header.strip():
+            # Use the header value as subdomain
+            subdomain = school_header.lower().strip()
+            request.subdomain = subdomain
+            
+            
+            try:
+                school = School.objects.get(domain=subdomain)
+                if school.is_active:
+                    res = True
+                else:
+                    res = False
+            except School.DoesNotExist:
+                res = False
+            except Http404:
+                # Re-raise Http404 exceptions to properly display 404 pages
+                res = False
+            except Exception as e:
+                # Only catch other exceptions, not Http404
+                print(f"Unexpected error in CheckSchoolView: {e}")
+                res = False
+        return Response({'school': res})
 
 
 class SchoolView(IsActiveFilterMixin, RetrieveAPIView):

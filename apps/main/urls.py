@@ -1,6 +1,6 @@
 from django.urls import path
 from .views.menu import MenuView
-from .views.school import SchoolView
+from .views.school import SchoolView, CheckSchoolView
 from .views.school_life import SchoolLifeView
 from .views.banner import BannerListView
 from .views.direction import DirectionListView, DirectionDetailView
@@ -50,5 +50,8 @@ urlpatterns = [
     # Honor endpoints
     path('honors/', HonorsListView.as_view(), name='honors-list'),
     path('honors/<slug:slug>/', HonorsDetailView.as_view(), name='honors-detail'),
+    
+    # School check endpoint
+    path('check-school/', CheckSchoolView.as_view(), name='check-school'),
 ]
 
