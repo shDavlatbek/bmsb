@@ -524,6 +524,12 @@ class TimeTable(BaseModel):
 
 
 class DocumentCategory(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="document_categories",
+    )
     name = models.CharField(max_length=255, verbose_name="Kategoriya nomi")
     
     def __str__(self):
