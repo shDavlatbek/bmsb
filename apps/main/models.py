@@ -523,7 +523,7 @@ class TimeTable(BaseModel):
         ordering = ['title']
 
 
-class DocumentCategory(BaseModel):
+class DocumentCategory(SlugifyMixin, BaseModel):
     school = models.ForeignKey(
         School, on_delete=models.CASCADE,
         null=True, blank=True,
@@ -531,6 +531,9 @@ class DocumentCategory(BaseModel):
         related_name="document_categories",
     )
     name = models.CharField(max_length=255, verbose_name="Kategoriya nomi")
+    slug = models.SlugField(verbose_name="Slug")
+    
+    slug_source = "name"
     
     def __str__(self):
         return self.name
@@ -538,6 +541,13 @@ class DocumentCategory(BaseModel):
     class Meta:
         verbose_name = "Hujjat kategoriyasi"
         verbose_name_plural = "Hujjat kategoriyalari"
+        
+        constraints = [
+            models.UniqueConstraint(
+                fields=['school', 'slug'],
+                name='unique_document_category_school_slug',
+            )
+        ]
 
 
 class Document(BaseModel):

@@ -120,10 +120,32 @@ class SchoolAdminMixin:
                 return qs.filter(school=None)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "school" and self._is_school_admin(request):
-            kwargs["queryset"] = db_field.related_model.objects.filter(
-                pk=request.user.school.pk
-            )
+        if self._is_school_admin(request) and hasattr(request.user, 'school') and request.user.school:
+            # Handle the school field itself
+            if db_field.name == "school":
+                kwargs["queryset"] = db_field.related_model.objects.filter(
+                    pk=request.user.school.pk
+                )
+            else:
+                # Handle other foreign key fields that have a school relationship
+                related_model = db_field.related_model
+                try:
+                    # Check if the related model has a school field
+                    model_fields = [f.name for f in related_model._meta.fields]
+                    
+                    # If related model has a school field, filter by current user's school
+                    if 'school' in model_fields:
+                        queryset = related_model.objects.filter(school=request.user.school)
+                        
+                        # Also filter by is_active if the model has this field
+                        if 'is_active' in model_fields:
+                            queryset = queryset.filter(is_active=True)
+                        
+                        kwargs["queryset"] = queryset
+                        
+                except Exception:
+                    # If there's any error in filtering, fall back to default behavior
+                    pass
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     

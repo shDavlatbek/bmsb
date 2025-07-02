@@ -28,7 +28,8 @@ class NewsAdmin(SchoolAdminMixin, DescriptionMixin, AdminTranslation):
         return not request.user.is_superuser
     
     # search_fields = ['title', 'description']
-    readonly_fields = ['view_count']
+    #    readonly_fields = ['view_count']
+    
     # fieldsets = (
     #     (None, {
     #         'fields': ('school', 'category', 'title', 'slug', 'image')
