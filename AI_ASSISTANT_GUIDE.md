@@ -97,7 +97,8 @@ bmsb/
 │   ├── common/          # 🔧 Base models, mixins, utilities
 │   ├── main/            # 🏫 Core school functionality (School, Direction, Teacher, FAQ, Vacancy)
 │   ├── news/            # 📰 News and announcements
-│   ├── media/           # 📷 Media collections, images, videos  
+│   ├── media/           # 📷 Media collections, images, videos
+│   ├── service/         # 🧑‍🎨 Services (culture, art, etc.)
 │   ├── user/            # 👤 User management
 │   └── resource/        # 📚 Educational resources (videos, files)
 ├── config/              # ⚙️ Settings, URLs, middleware
@@ -1075,6 +1076,12 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 - `ResourceVideo`: **NO CONSTRAINTS** - Allow duplicate video titles per school
 - `ResourceFile`: **NO CONSTRAINTS** - Allow duplicate file titles per school
 
+#### **Service App (`apps/service/models.py`):**
+- `Service`: `unique_service_school_slug` - Unique service slugs per school
+- `CultureService`: **NO CONSTRAINTS** - Inherits from Service
+- `CultureArt`: **NO CONSTRAINTS** - Inherits from Service
+- `FineArt`: **NO CONSTRAINTS** - Inherits from Service
+
 #### **Models WITHOUT Constraints (No Uniqueness Needed):**
 - `DocumentCategory` - Global categories, basic model
 - `MediaImage`, `MediaVideo` - Child models, uniqueness handled at parent level
@@ -1317,6 +1324,14 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 - **GET** `/api/resource/videos/` - Ta'lim videolari (List resource videos)
 - **GET** `/api/resource/files/` - Ta'lim fayllari (List resource files)
 
+#### **Service App (`/api/service/`):**
+- **GET** `/api/service/culture-services/` - Madaniy xizmatlarni ko'rish (List culture services)
+- **GET** `/api/service/culture-services/<slug>/` - Madaniy xizmat detallari (Get culture service details)
+- **GET** `/api/service/culture-arts/` - Madaniy san'at asarlarini ko'rish (List culture arts)
+- **GET** `/api/service/culture-arts/<slug>/` - Madaniy san'at asari detallari (Get culture art details)
+- **GET** `/api/service/fine-arts/` - Tasviriy san'at asarlarini ko'rish (List fine arts)
+- **GET** `/api/service/fine-arts/<slug>/` - Tasviriy san'at asari detallari (Get fine art details)
+
 #### **Authentication & Users:**
 - Standard Django auth endpoints
 - Custom user management through admin interface
@@ -1413,6 +1428,18 @@ apps/resource/
 ├── urls.py           # Resource URL yo'nalishlar
 ├── translation.py    # Resource tarjima konfiguratsiyasi
 └── migrations/       # Resource ma'lumotlar bazasi o'zgarishlari
+```
+
+### **Service App Files:**
+```
+apps/service/
+├── models.py            # Service, CultureService, CultureArt, FineArt modellari
+├── admin.py             # Service admin konfiguratsiyasi
+├── serializers.py       # Service serializer sinflari
+├── views.py            # Service API ko'rinishlar
+├── urls.py             # Service URL yo'nalishlar
+├── translation.py      # Service tarjima konfiguratsiyasi
+└── migrations/         # Service ma'lumotlar bazasi o'zgarishlari
 ```
 
 ### **User Management:**
