@@ -647,6 +647,53 @@ class HonorAchievements(BaseModel):
         verbose_name_plural = "Yutuqlar"
 
 
+class ContactForm(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="contact_forms",
+    )
+    full_name = models.CharField(max_length=255, verbose_name="F.I.O")
+    phone_number = models.CharField(max_length=255, verbose_name="Telefon raqami")
+    message = models.TextField(verbose_name="Xabar")
+    
+    def __str__(self):
+        return f"{self.full_name} - {self.created_at}"
+    
+    class Meta:
+        verbose_name = "Aloqa so'rovi "
+        verbose_name_plural = "Aloqa so'rovlari"
+        ordering = ['-created_at']
+    
+
+class Comments(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="comments",
+    )
+    image = models.ImageField(
+        upload_to=generate_upload_path,
+        verbose_name="Rasm",
+        validators=[file_size],
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
+    )
+    full_name = models.CharField(max_length=255, verbose_name="F.I.O")
+    rating = models.PositiveIntegerField(verbose_name="Reyting")
+    comment = models.TextField(verbose_name="Izoh")
+    
+    def __str__(self):
+        return f"{self.full_name} - {self.created_at}"
+    
+    class Meta:
+        verbose_name = "Izoh "
+        verbose_name_plural = "Izohlar"
+        ordering = ['-created_at']
+    
+    
+
 # Signal to create default instances when a new School is created
 @receiver(post_save, sender=School)
 def create_school_defaults(sender, instance, created, **kwargs):

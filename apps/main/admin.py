@@ -366,3 +366,40 @@ class HonorsAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
             return mark_safe(f'<img src="{obj.image.url}" style="height: 50px; width: 50px; object-fit: cover; border-radius: 4px;" />')
         return ""
     image_preview.short_description = "Rasm"
+
+
+@admin.register(models.ContactForm)
+class ContactFormAdmin(SchoolAdminMixin, admin.ModelAdmin):
+    list_display = ('full_name', 'phone_number', 'created_at', 'is_active')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('full_name', 'phone_number', 'message')
+    readonly_fields = ('full_name', 'phone_number', 'message', 'created_at', 'updated_at')
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_staff
+
+
+@admin.register(models.Comments)
+class CommentsAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('full_name', 'rating', 'image_preview', 'is_active', 'created_at')
+    list_filter = ('is_active', 'rating', 'created_at')
+    search_fields = ('full_name', 'comment')
+    
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+    
+    def image_preview(self, obj):
+        """Display image thumbnail in list view"""
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="height: 50px; width: 50px; object-fit: cover; border-radius: 4px;" />')
+        return ""
+    image_preview.short_description = "Rasm"

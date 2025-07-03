@@ -1,5 +1,5 @@
 from modeltranslation.translator import translator, TranslationOptions
-from .models import School, Menu, Banner, SchoolLife, Direction, DirectionSchool, Subject, MusicalInstrument, TeacherExperience, FAQ, Vacancy, TimeTable, Document, DocumentCategory, Staff, Leader, Honors, HonorAchievements
+from .models import School, Menu, Banner, SchoolLife, Direction, DirectionSchool, Subject, MusicalInstrument, TeacherExperience, FAQ, Vacancy, TimeTable, Document, DocumentCategory, Staff, Leader, Honors, HonorAchievements, Comments
 
 
 class MenuTranslationOptions(TranslationOptions):
@@ -92,6 +92,11 @@ class HonorAchievementsTranslationOptions(TranslationOptions):
     required_languages = ('uz',)
 
 
+class CommentsTranslationOptions(TranslationOptions):
+    fields = ('full_name', 'comment')
+    required_languages = ('uz',)
+
+
 translator.register(School, SchoolTranslationOptions)
 translator.register(Menu, MenuTranslationOptions)
 translator.register(Banner, BannerTranslationOptions)
@@ -110,3 +115,4 @@ translator.register(Staff, StaffTranslationOptions)
 translator.register(Leader, LeaderTranslationOptions)
 translator.register(Honors, HonorsTranslationOptions)
 translator.register(HonorAchievements, HonorAchievementsTranslationOptions)
+translator.register(Comments, CommentsTranslationOptions)

@@ -12,6 +12,8 @@ from .views.timetable import TimeTableListView
 from .views.staff import StaffListView
 from .views.leader import LeaderListView, LeaderDetailView
 from .views.honor import HonorsListView, HonorsDetailView
+from .views.contact_form import ContactFormCreateView
+from .views.comments import CommentsListView, CommentsDetailView
 
 urlpatterns = [
     path('menus/', MenuView.as_view(), name='menu'),
@@ -50,6 +52,13 @@ urlpatterns = [
     # Honor endpoints
     path('honors/', HonorsListView.as_view(), name='honors-list'),
     path('honors/<slug:slug>/', HonorsDetailView.as_view(), name='honors-detail'),
+    
+    # ContactForm endpoints
+    path('contact-forms/', ContactFormCreateView.as_view(), name='contact-form-create'),
+    
+    # Comments endpoints
+    path('comments/', CommentsListView.as_view(), name='comments-list'),
+    path('comments/<int:id>/', CommentsDetailView.as_view(), name='comments-detail'),
     
     # School check endpoint
     path('check-school/', CheckSchoolView.as_view(), name='check-school'),

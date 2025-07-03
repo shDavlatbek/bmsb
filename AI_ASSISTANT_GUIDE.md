@@ -240,6 +240,47 @@ class BadAdmin(SchoolAdminMixin, AdminTranslation):
     fieldsets = (...)  # Avoid fieldsets for simple models
 ```
 
+#### 6. **SchoolAdminMixin Foreign Key Filtering**
+The `SchoolAdminMixin` automatically filters **ALL foreign key fields** that have a school relationship:
+
+```python
+# ✅ AUTOMATIC FILTERING - No manual code needed
+@admin.register(News)
+class NewsAdmin(SchoolAdminMixin, AdminTranslation):
+    # Category dropdown will AUTOMATICALLY show only current school's categories
+    # Author dropdown will AUTOMATICALLY show only current school's authors
+    # Any FK with school field will be filtered automatically
+    pass
+
+# ⚠️ CRITICAL: Foreign key models MUST have school field properly populated
+# Example: Categories must have school=current_school, not school=None
+```
+
+**What Gets Automatically Filtered:**
+- ✅ Category field in News → Only current school's categories
+- ✅ Teacher field in any model → Only current school's teachers  
+- ✅ Any foreign key to a model with `school` field → Filtered by current school
+- ✅ Active status → Inactive records automatically excluded
+- ✅ School field itself → Limited to current user's school
+
+#### 7. **Data Assignment Requirements** ⚠️ **CRITICAL**
+**SchoolAdminMixin foreign key filtering only works when:**
+- ✅ **Models have proper school assignment**: `school=actual_school` (not `None`)
+- ✅ **Admin uses SchoolAdminMixin**: Automatic filtering enabled
+- ✅ **Data created via admin**: `save_model` assigns school automatically
+
+**If foreign key dropdowns show ALL records instead of school-specific ones:**
+```python
+# 🔍 DIAGNOSIS: Check data assignment
+from apps.news.models import Category
+for cat in Category.objects.all():
+    print(f"{cat.name} → School: {cat.school}")
+# If you see "None", that's the issue!
+
+# 🔧 FIX: Assign proper schools to existing data
+Category.objects.filter(school=None).update(school_id=1)  # Replace 1 with actual school ID
+```
+
 ### Mixin Usage Matrix:
 
 | Scenario | IsActiveFilterMixin | SchoolScopedMixin | SchoolAdminMixin | Admin Best Practices |
@@ -1232,6 +1273,187 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 ---
 
 **Remember**: BMSB is security-first, multi-tenant system. Every piece of code must respect tenant boundaries and use the established patterns. When in doubt, favor more security mixins rather than fewer! 
+
+---
+
+## 🚀 API Endpoints
+
+### **Current API Endpoints (Complete List):**
+
+#### **Main App (`/api/main/`):**
+- **POST** `/api/main/contact-forms/` - Aloqa so'rovlarini yaratish (Create contact requests)
+- **GET** `/api/main/comments/` - Maktab izohlarini ko'rish (List school comments)  
+- **GET** `/api/main/comments/<id>/` - Izoh detallari (Get comment details)
+- **GET** `/api/main/directions/` - Maktab yo'nalishlarini ko'rish (List school directions)
+- **GET** `/api/main/directions/<slug>/` - Yo'nalish detallari (Get direction details)
+- **GET** `/api/main/teachers/` - Maktab o'qituvchilarini ko'rish (List school teachers)
+- **GET** `/api/main/teachers/<slug>/` - O'qituvchi detallari (Get teacher details)
+- **GET** `/api/main/staffs/` - Maktab xodimlarini ko'rish (List school staff)
+- **GET** `/api/main/staffs/<slug>/` - Xodim detallari (Get staff details)
+- **GET** `/api/main/leaders/` - Maktab rahbarlarini ko'rish (List school leaders)
+- **GET** `/api/main/leaders/<slug>/` - Rahbar detallari (Get leader details)
+- **GET** `/api/main/honors/` - Maktab faxrlarini ko'rish (List school honors)
+- **GET** `/api/main/honors/<slug>/` - Faxr detallari (Get honor details)
+- **GET** `/api/main/faqs/` - Tez-tez so'raladigan savollar (List school FAQs)
+- **GET** `/api/main/vacancies/` - Bo'sh ish o'rinlari (List school vacancies)
+- **GET** `/api/main/vacancies/<slug>/` - Vakansiya detallari (Get vacancy details)
+- **GET** `/api/main/documents/` - Maktab hujjatlari (List school documents)
+- **GET** `/api/main/timetables/` - Dars jadvallari (List school timetables)
+- **GET** `/api/main/banners/` - Maktab bannerlari (List school banners)
+- **GET** `/api/main/school-lifes/` - Maktab hayoti rasmlari (List school life images)
+- **GET** `/api/main/school/` - Maktab ma'lumotlari (Get school details)
+- **GET** `/api/main/menus/` - Maktab menyu tuzilmasi (Get school menu structure)
+
+#### **News App (`/api/news/`):**
+- **GET** `/api/news/categories/` - Yangilik kategoriyalari (List news categories)
+- **GET** `/api/news/` - Maktab yangiliklari (List school news)
+- **GET** `/api/news/<slug>/` - Yangilik detallari (Get news details)
+
+#### **Media App (`/api/media/`):**
+- **GET** `/api/media/collections/` - Media kolleksiyalari (List media collections)
+- **GET** `/api/media/collections/<slug>/` - Kolleksiya detallari (Get collection details)
+
+#### **Resource App (`/api/resource/`):**
+- **GET** `/api/resource/videos/` - Ta'lim videolari (List resource videos)
+- **GET** `/api/resource/files/` - Ta'lim fayllari (List resource files)
+
+#### **Authentication & Users:**
+- Standard Django auth endpoints
+- Custom user management through admin interface
+
+---
+
+## 📁 Project Files Structure
+
+### **Core Configuration Files:**
+```
+config/
+├── settings/
+│   ├── base.py              # Asosiy sozlamalar
+│   ├── development.py       # Ishlab chiqish muhiti
+│   ├── production.py        # Ishlab chiqarish muhiti
+│   └── testing.py          # Test muhiti
+├── urls.py                  # Asosiy URL konfiguratsiyasi
+├── wsgi.py                  # WSGI konfiguratsiyasi
+└── asgi.py                  # ASGI konfiguratsiyasi
+```
+
+### **Main Application Files:**
+```
+apps/main/
+├── models.py                # Barcha main model sinflari
+├── admin.py                 # Admin interfeys konfiguratsiyasi
+├── serializers/
+│   ├── contact_form.py     # ContactForm serializer
+│   ├── comments.py         # Comments serializer
+│   ├── direction.py        # Direction serializer
+│   ├── school.py          # School serializer
+│   ├── teacher.py         # Teacher serializer
+│   ├── staff.py           # Staff serializer
+│   ├── leader.py          # Leader serializer
+│   ├── honors.py          # Honors serializer
+│   ├── faq.py             # FAQ serializer
+│   ├── vacancy.py         # Vacancy serializer
+│   └── ...                # Boshqa serializer fayllar
+├── views/
+│   ├── contact_form.py    # ContactForm ko'rinishlar
+│   ├── comments.py        # Comments ko'rinishlar
+│   ├── direction.py       # Direction ko'rinishlar
+│   ├── school.py          # School ko'rinishlar
+│   ├── teacher.py         # Teacher ko'rinishlar
+│   └── ...                # Boshqa view fayllar
+├── translation.py         # Tarjima konfiguratsiyasi
+├── urls.py               # URL yo'nalishlar
+└── migrations/           # Ma'lumotlar bazasi o'zgarishlari
+```
+
+### **Common Utilities:**
+```
+apps/common/
+├── models.py             # BaseModel, SlugifyMixin
+├── mixins.py            # SchoolScopedMixin, IsActiveFilterMixin, SchoolAdminMixin
+├── utils.py             # Fayl yuklash, yordamchi funksiyalar
+├── views.py             # APIDocumentationView
+├── templates/
+│   └── api_documentation.html  # API hujjatlash sahifasi
+└── middleware.py        # Maktab konteksti middleware
+```
+
+### **News App Files:**
+```
+apps/news/
+├── models.py            # Category, News modellari
+├── admin.py             # News admin konfiguratsiyasi
+├── serializers.py       # News serializer sinflari
+├── views.py            # News API ko'rinishlar
+├── urls.py             # News URL yo'nalishlar
+├── translation.py      # News tarjima konfiguratsiyasi
+└── migrations/         # News ma'lumotlar bazasi o'zgarishlari
+```
+
+### **Media App Files:**
+```
+apps/media/
+├── models.py           # MediaCollection, MediaImage modellari
+├── admin.py            # Media admin konfiguratsiyasi
+├── serializers.py      # Media serializer sinflari
+├── views.py           # Media API ko'rinishlar
+├── urls.py            # Media URL yo'nalishlar
+├── translation.py     # Media tarjima konfiguratsiyasi
+└── migrations/        # Media ma'lumotlar bazasi o'zgarishlari
+```
+
+### **Resource App Files:**
+```
+apps/resource/
+├── models.py          # ResourceVideo, ResourceFile modellari
+├── admin.py           # Resource admin konfiguratsiyasi
+├── serializers.py     # Resource serializer sinflari
+├── views.py          # Resource API ko'rinishlar
+├── urls.py           # Resource URL yo'nalishlar
+├── translation.py    # Resource tarjima konfiguratsiyasi
+└── migrations/       # Resource ma'lumotlar bazasi o'zgarishlari
+```
+
+### **User Management:**
+```
+apps/user/
+├── models.py         # Foydalanuvchi modeli
+├── admin.py          # User admin konfiguratsiyasi
+├── views.py         # User API ko'rinishlar
+├── serializers.py   # User serializer sinflari
+├── urls.py          # User URL yo'nalishlar
+└── migrations/      # User ma'lumotlar bazasi o'zgarishlari
+```
+
+### **Requirements Files:**
+```
+requirements/
+├── base.txt         # Asosiy bog'liqliklar
+├── development.txt  # Ishlab chiqish bog'liqliklari
+└── production.txt   # Ishlab chiqarish bog'liqliklari
+```
+
+### **Static Files:**
+```
+assets/
+├── css/            # CSS fayllar
+├── js/             # JavaScript fayllar
+├── images/         # Statik rasmlar
+└── tinymce/        # TinyMCE redaktor fayllari
+```
+
+### **Database Migrations Status:**
+- ✅ All apps have up-to-date migrations
+- ✅ ContactForm and Comments models migrated successfully
+- ✅ DirectionSchool translation configuration applied
+- ✅ All foreign key filtering enhancements applied
+
+### **Key Architecture Files:**
+- `apps/main/middleware.py` - School context va 401 auth responses
+- `apps/common/mixins.py` - Security va foreign key filtering mixins
+- `config/settings/base.py` - Asosiy Django sozlamalari
+- `config/urls.py` - API endpoints va admin URLs
 
 ### **Custom API Documentation (IMPORTANT):**
 - **Location**: `/api/docs/` 
