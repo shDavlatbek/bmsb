@@ -4,11 +4,13 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.http import JsonResponse
 from django.urls import path, include
+from django.shortcuts import redirect
 
 from config.swagger.schema import swagger_urlpatterns
 
 
 urlpatterns = [
+    path('', lambda request: redirect('/admin/', permanent=True)),
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
     path('tinymce/', include('tinymce.urls')),
@@ -20,7 +22,6 @@ urlpatterns += [
     path('api/news/', include('apps.news.urls')),
     path('api/media/', include('apps.media.urls')),
     path('api/resources/', include('apps.resource.urls')),
-    path('api/service/', include('apps.service.urls')),
 ]
 
 urlpatterns += swagger_urlpatterns
