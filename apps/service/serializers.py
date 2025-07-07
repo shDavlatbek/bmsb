@@ -16,27 +16,48 @@ class CultureServiceFileSerializer(serializers.ModelSerializer):
 
 class ServiceListSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Service
-        fields = ['id', 'name', 'slug', 'tags', 'created_at']
+        fields = ['id', 'name', 'slug', 'tags', 'image', 'created_at']
 
     def get_tags(self, obj):
         if obj.tags:
             return [tag.strip() for tag in obj.tags.split(',')]
         return []
+    
+    def get_image(self, obj):
+        first_image = obj.service_images.first()
+        if first_image and first_image.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(first_image.image.url)
+            return first_image.image.url
+        return None
 
 
 class ServiceDetailSerializer(serializers.ModelSerializer):
-    service_images = ServiceImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
     
     class Meta:
         model = Service
         fields = [
             'id', 'name', 'slug', 'description', 'tags', 
-            'service_images', 'created_at'
+            'images', 'created_at'
         ]
+    
+    def get_images(self, obj):
+        request = self.context.get('request')
+        images = []
+        for service_image in obj.service_images.all():
+            if service_image.image:
+                if request:
+                    images.append(request.build_absolute_uri(service_image.image.url))
+                else:
+                    images.append(service_image.image.url)
+        return images
     
     def get_tags(self, obj):
         if obj.tags:
@@ -46,19 +67,29 @@ class ServiceDetailSerializer(serializers.ModelSerializer):
 
 class CultureServiceListSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = CultureService
-        fields = ['id', 'name', 'slug', 'price', 'tags', 'created_at']
+        fields = ['id', 'name', 'slug', 'price', 'tags', 'image', 'created_at']
 
     def get_tags(self, obj):
         if obj.tags:
             return [tag.strip() for tag in obj.tags.split(',')]
         return []
+    
+    def get_image(self, obj):
+        first_image = obj.service_images.first()
+        if first_image and first_image.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(first_image.image.url)
+            return first_image.image.url
+        return None
 
 
 class CultureServiceDetailSerializer(serializers.ModelSerializer):
-    service_images = ServiceImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     service_files = CultureServiceFileSerializer(many=True, read_only=True)
     tags = serializers.SerializerMethodField()
     
@@ -66,8 +97,19 @@ class CultureServiceDetailSerializer(serializers.ModelSerializer):
         model = CultureService
         fields = [
             'id', 'name', 'slug', 'description', 'price', 'tags',
-            'service_images', 'service_files', 'created_at'
+            'images', 'service_files', 'created_at'
         ]
+
+    def get_images(self, obj):
+        request = self.context.get('request')
+        images = []
+        for service_image in obj.service_images.all():
+            if service_image.image:
+                if request:
+                    images.append(request.build_absolute_uri(service_image.image.url))
+                else:
+                    images.append(service_image.image.url)
+        return images
 
     def get_tags(self, obj):
         if obj.tags:
@@ -102,7 +144,7 @@ class CultureArtListSerializer(serializers.ModelSerializer):
 
 
 class CultureArtDetailSerializer(serializers.ModelSerializer):
-    service_images = ServiceImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
     
     class Meta:
@@ -110,8 +152,19 @@ class CultureArtDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'description', 'tags', 'email', 'phone_number',
             'author_image', 'author_name', 'author_musical_instrument', 
-            'author_direction', 'author_honor', 'service_images', 'created_at'
+            'author_direction', 'author_honor', 'images', 'created_at'
         ]
+
+    def get_images(self, obj):
+        request = self.context.get('request')
+        images = []
+        for service_image in obj.service_images.all():
+            if service_image.image:
+                if request:
+                    images.append(request.build_absolute_uri(service_image.image.url))
+                else:
+                    images.append(service_image.image.url)
+        return images
 
     def get_tags(self, obj):
         if obj.tags:
@@ -146,7 +199,7 @@ class FineArtListSerializer(serializers.ModelSerializer):
 
 
 class FineArtDetailSerializer(serializers.ModelSerializer):
-    service_images = ServiceImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
     
     class Meta:
@@ -154,8 +207,19 @@ class FineArtDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'description', 'tags', 'email', 'phone_number',
             'author_image', 'author_name', 'author_musical_instrument', 
-            'author_direction', 'author_honor', 'service_images', 'created_at'
+            'author_direction', 'author_honor', 'images', 'created_at'
         ]
+
+    def get_images(self, obj):
+        request = self.context.get('request')
+        images = []
+        for service_image in obj.service_images.all():
+            if service_image.image:
+                if request:
+                    images.append(request.build_absolute_uri(service_image.image.url))
+                else:
+                    images.append(service_image.image.url)
+        return images
 
     def get_tags(self, obj):
         if obj.tags:

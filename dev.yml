@@ -13,20 +13,20 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.develop
     ports:
-      - "8000:8000"
+      - "8020:8020"
 
-  nginx:
-    image: nginx:alpine
-    restart: always
-    depends_on:
-      - web
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/conf.d/dev.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/app/static
-      - media_volume:/app/media
-      - .:/app  # Share the code with nginx for access to static files during development
+  # nginx:
+  #   image: nginx:alpine
+  #   restart: always
+  #   depends_on:
+  #     - web
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx/conf.d/dev.conf:/etc/nginx/conf.d/default.conf
+  #     - static_volume:/app/static
+  #     - media_volume:/app/media
+  #     - .:/app  # Share the code with nginx for access to static files during development
 
 volumes:
   static_volume:
