@@ -22,6 +22,7 @@ urlpatterns += [
     path('api/news/', include('apps.news.urls')),
     path('api/media/', include('apps.media.urls')),
     path('api/resources/', include('apps.resource.urls')),
+    path('api/services/', include('apps.service.urls'))
 ]
 
 urlpatterns += swagger_urlpatterns
