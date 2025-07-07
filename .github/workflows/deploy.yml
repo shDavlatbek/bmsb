@@ -27,8 +27,8 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} <<'EOF'
             cd ${{ secrets.PROJECT_PATH }}
             git pull
-            docker-compose -f prod.yml down
-            docker-compose -f prod.yml up -d --build
+            docker compose -f prod.yml down
+            docker compose -f prod.yml up -d --build
           EOF
 
       # === DEV branch deploy ===
@@ -38,5 +38,5 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} <<'EOF'
             cd ${{ secrets.PROJECT_PATH_DEV }}
             git pull origin dev
-            docker-compose -f dev.yml up -d --build
+            docker compose -f dev.yml up -d --build
           EOF
