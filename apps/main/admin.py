@@ -247,7 +247,7 @@ class TimeTableAdmin(SchoolAdminMixin, AdminTranslation):
         return False
     
     def has_delete_permission(self, request, obj=None):
-        return False
+        return request.user.is_superuser
 
 
 @admin.register(models.DocumentCategory)
@@ -341,7 +341,7 @@ class ContactFormAdmin(SchoolAdminMixin, admin.ModelAdmin):
         return False
     
     def has_delete_permission(self, request, obj=None):
-        return request.user.is_staff
+        return request.user.is_superuser
 
 
 @admin.register(models.Comments)
