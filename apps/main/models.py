@@ -740,6 +740,35 @@ class EduInfo(BaseModel):
         verbose_name_plural = "Ta'limga oid ma'lumotlar"
 
 
+class SiteSettings(BaseModel):
+    school_life = models.CharField(max_length=500, verbose_name="Maktabimiz hayoti", null=True, blank=True)
+    directions = models.CharField(max_length=500, verbose_name="Bizning yo'nalishlar", null=True, blank=True)
+    numbers = models.CharField(max_length=500, verbose_name="Biz raqamlarda", null=True, blank=True)
+    teachers = models.CharField(max_length=500, verbose_name="Maktabimiz o'qituvchilari", null=True, blank=True)
+    honors = models.CharField(max_length=500, verbose_name="Maktabimiz faxrlari", null=True, blank=True)
+    news = models.CharField(max_length=500, verbose_name="Yangiliklar", null=True, blank=True)
+    gallery = models.CharField(max_length=500, verbose_name="Galereya", null=True, blank=True)
+    contact = models.CharField(max_length=500, verbose_name="Bog'lanish", null=True, blank=True)
+    comments = models.CharField(max_length=500, verbose_name="Mashxurlar biz haqimizda", null=True, blank=True)
+    faqs = models.CharField(max_length=500, verbose_name="Ko'p beriladigan savollar", null=True, blank=True)
+    leaders = models.CharField(max_length=500, verbose_name="Rahbariyat/Xodimlar/O'qituvchilar", null=True, blank=True)
+    vacancies = models.CharField(max_length=500, verbose_name="Bo'sh ish o'rinlari", null=True, blank=True)
+    documents = models.CharField(max_length=500, verbose_name="Hujjatlar", null=True, blank=True)
+    timetables = models.CharField(max_length=500, verbose_name="O'quv reja", null=True, blank=True)
+    edu_infos = models.CharField(max_length=500, verbose_name="Ta'limga oid ma'lumotlar", null=True, blank=True) 
+    events = models.CharField(max_length=500, verbose_name="Tadbirlar", null=True, blank=True)
+    resources = models.CharField(max_length=500, verbose_name="Resurslar", null=True, blank=True)
+    culture_services = models.CharField(max_length=500, verbose_name="Madaniy xizmatlar tavsifi", null=True, blank=True)
+    culture_arts = models.CharField(max_length=500, verbose_name="Madaniy san'at tavsifi", null=True, blank=True)
+    fine_arts = models.CharField(max_length=500, verbose_name="Tasviriy san'at tavsifi", null=True, blank=True)
+
+    def __str__(self):
+        return "Maktab text tavsilotlar"
+    
+    class Meta:
+        verbose_name = "Maktab text tavsilotlar"
+        verbose_name_plural = "Maktab text tavsilotlar"
+
 # Signal to create default instances when a new School is created
 @receiver(post_save, sender=School)
 def create_school_defaults(sender, instance, created, **kwargs):

@@ -347,6 +347,30 @@ class EduInfoAdmin(SchoolAdminMixin, AdminTranslation):
         return not request.user.is_superuser
 
 
+@admin.register(models.SiteSettings)
+class SiteSettingsAdmin(AdminTranslation):
+    exclude = ('is_active',)
+    
+    def has_add_permission(self, request):
+        # Allow adding only if no instance exists
+        return not models.SiteSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        # Disallow deleting
+        return False
+        
+    def has_change_permission(self, request, obj=None):
+        # Allow changing only for superusers
+        return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        # Allow viewing only for superusers
+        return request.user.is_superuser
+    
+    def has_module_permission(self, request):
+        return request.user.is_superuser
+
+
 @admin.register(models.ContactForm)
 class ContactFormAdmin(SchoolAdminMixin, admin.ModelAdmin):
     list_display = ('full_name', 'phone_number', 'created_at', 'is_active')
