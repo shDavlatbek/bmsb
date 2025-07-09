@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 from django.core.validators import FileExtensionValidator
 from apps.common.models import BaseModel
 from apps.common.utils import generate_upload_path
-from apps.common.validators import file_size, file_size_50, validate_subdomain
+from apps.common.validators import file_size, file_size_50, validate_subdomain, validate_youtube_link
     
     
 class School(SlugifyMixin, BaseModel):
@@ -235,6 +235,32 @@ class Direction(SlugifyMixin, BaseModel):
             )
         ]
 
+
+class DirectionImage(BaseModel):
+    direction = models.ForeignKey(
+        'DirectionSchool', on_delete=models.CASCADE,
+        verbose_name="Yo'nalish",
+        related_name="direction_images",
+    )
+    image = models.ImageField(upload_to=generate_upload_path, verbose_name="Rasm", validators=[file_size], 
+                              help_text="Rasm 5 MB dan katta bo'lishi mumkin emas.")
+
+    class Meta:
+        verbose_name = "Yo'nalish galereya "
+        verbose_name_plural = "Yo'nalish galereyalari"
+
+
+class DirectionVideo(BaseModel):
+    direction = models.ForeignKey(
+        'DirectionSchool', on_delete=models.CASCADE,
+        verbose_name="Yo'nalish",
+        related_name="direction_videos",
+    )
+    video = models.URLField(verbose_name="Youtube video havola", validators=[validate_youtube_link])
+
+    class Meta:
+        verbose_name = "Yo'nalish video "
+        verbose_name_plural = "Yo'nalish videolar"
 
 
 class DirectionSchool(BaseModel):

@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from ..models import DirectionSchool, Subject, MusicalInstrument, Teacher
+from ..models import (
+    DirectionSchool, Subject, MusicalInstrument, Teacher, 
+    DirectionImage, DirectionVideo
+)
 
 
 class SubjectSerializer(serializers.ModelSerializer):
@@ -42,7 +45,9 @@ class DirectionDetailSerializer(serializers.ModelSerializer):
     # DirectionSchool relationships
     subjects = SubjectSerializer(many=True, read_only=True)
     musical_instruments = MusicalInstrumentSerializer(many=True, read_only=True)
-    
+    gallery_images = serializers.SerializerMethodField()
+    gallery_videos = serializers.SerializerMethodField()
+
     # Teachers that belong to this direction and school
     teachers = serializers.SerializerMethodField()
     
@@ -51,8 +56,17 @@ class DirectionDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'description', 'icon', 'background_image', 'founded_year', 
             'student_count', 'teacher_count', 'subjects', 
-            'musical_instruments', 'teachers', 'created_at'
+            'musical_instruments', 'teachers', 'gallery_images', 'gallery_videos', 'created_at'
         ]
+    
+    def get_gallery_images(self, obj):
+        if obj.direction_images.exists():
+            request = self.context.get('request')
+            return [request.build_absolute_uri(img.image.url) for img in obj.direction_images.all() if img.image]
+        return []
+
+    def get_gallery_videos(self, obj):
+        return [vid.video for vid in obj.direction_videos.all()]
     
     def get_teachers(self, obj):
         """Get teachers that belong to this direction and the same school"""

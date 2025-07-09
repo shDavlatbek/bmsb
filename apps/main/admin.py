@@ -174,6 +174,14 @@ class DirectionSchoolForm(forms.ModelForm):
                     self.fields["school"].initial = school
                     self.fields["school"].widget = forms.HiddenInput()
             
+class DirectionImageInline(admin.TabularInline):
+    model = models.DirectionImage
+    extra = 0
+    
+
+class DirectionVideoInline(admin.TabularInline):
+    model = models.DirectionVideo
+    extra = 0
 
 @admin.register(models.DirectionSchool)
 class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
@@ -181,7 +189,7 @@ class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation)
     list_display = ("direction", "founded_year", "student_count", "is_active", "created_at")
     list_filter = ("is_active", "created_at")
     search_fields = ("direction__name", "description")
-
+    inlines = [DirectionImageInline, DirectionVideoInline]
     # inject `request` into the form so we can filter choices
     def get_form(self, request, obj=None, **kwargs):
         form_class = super().get_form(request, obj, **kwargs)

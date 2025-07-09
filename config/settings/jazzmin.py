@@ -164,6 +164,9 @@ JAZZMIN_SETTINGS: dict = {
         'media.mediaimage': 'vertical_tabs',
         'media.mediavideo': 'vertical_tabs',
         'media.mediacollection': 'single',
+        'main.directionimage': 'single',
+        'main.directionschool': 'single',
+        'main.directionvideo': 'single',
     },
     
     # Add a language dropdown into the admin
