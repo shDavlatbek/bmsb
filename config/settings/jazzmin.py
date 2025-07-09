@@ -108,7 +108,8 @@ JAZZMIN_SETTINGS: dict = {
         'main.honors': 'fas fa-medal',
         'main.honorachievements': 'fas fa-trophy',
         'main.contactform': 'fas fa-file-signature',
-        'main.comment': 'fas fa-comments',
+        'main.comments': 'fas fa-comments',
+        'main.eduinfo': 'fas fa-question-circle',
         
         # News app models
         'news.category': 'fas fa-tags',
@@ -164,6 +165,9 @@ JAZZMIN_SETTINGS: dict = {
         'media.mediaimage': 'vertical_tabs',
         'media.mediavideo': 'vertical_tabs',
         'media.mediacollection': 'single',
+        'main.directionimage': 'single',
+        'main.directionschool': 'single',
+        'main.directionvideo': 'single',
     },
     
     # Add a language dropdown into the admin

@@ -15,8 +15,11 @@ class DirectionListView(IsActiveFilterMixin, SchoolScopedMixin, generics.ListAPI
 class DirectionDetailView(IsActiveFilterMixin, SchoolScopedMixin, generics.RetrieveAPIView):
     queryset = DirectionSchool.objects.select_related('direction').prefetch_related(
         'subjects',
-        'musical_instruments'
+        'musical_instruments',
+        'direction_images',
+        'direction_videos'
     )
     serializer_class = DirectionDetailSerializer
     lookup_field = 'direction__slug'
+    lookup_url_kwarg = 'slug'
     school_field = "school" 

@@ -8,7 +8,7 @@ from django.utils.safestring import mark_safe
 from django.core.validators import FileExtensionValidator
 from apps.common.models import BaseModel
 from apps.common.utils import generate_upload_path
-from apps.common.validators import file_size, file_size_50, validate_subdomain
+from apps.common.validators import file_size, file_size_50, validate_subdomain, validate_youtube_link
     
     
 class School(SlugifyMixin, BaseModel):
@@ -187,6 +187,9 @@ class MusicalInstrument(SlugifyMixin, BaseModel):
         help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
     )
     
+    def __str__(self):
+        return self.name
+    
     class Meta:
         verbose_name = "Musiqa asbobi "
         verbose_name_plural = "Musiqa asboblari"
@@ -232,6 +235,32 @@ class Direction(SlugifyMixin, BaseModel):
             )
         ]
 
+
+class DirectionImage(BaseModel):
+    direction = models.ForeignKey(
+        'DirectionSchool', on_delete=models.CASCADE,
+        verbose_name="Yo'nalish",
+        related_name="direction_images",
+    )
+    image = models.ImageField(upload_to=generate_upload_path, verbose_name="Rasm", validators=[file_size], 
+                              help_text="Rasm 5 MB dan katta bo'lishi mumkin emas.")
+
+    class Meta:
+        verbose_name = "Yo'nalish galereya "
+        verbose_name_plural = "Yo'nalish galereyalari"
+
+
+class DirectionVideo(BaseModel):
+    direction = models.ForeignKey(
+        'DirectionSchool', on_delete=models.CASCADE,
+        verbose_name="Yo'nalish",
+        related_name="direction_videos",
+    )
+    video = models.URLField(verbose_name="Youtube video havola", validators=[validate_youtube_link])
+
+    class Meta:
+        verbose_name = "Yo'nalish video "
+        verbose_name_plural = "Yo'nalish videolar"
 
 
 class DirectionSchool(BaseModel):
@@ -539,7 +568,7 @@ class DocumentCategory(SlugifyMixin, BaseModel):
         return self.name
     
     class Meta:
-        verbose_name = "Hujjat kategoriyasi"
+        verbose_name = "Hujjat kategoriyasi "
         verbose_name_plural = "Hujjat kategoriyalari"
         
         constraints = [
@@ -685,14 +714,60 @@ class Comments(BaseModel):
     comment = models.TextField(verbose_name="Izoh")
     
     def __str__(self):
-        return f"{self.full_name} - {self.created_at}"
+        return self.full_name
     
     class Meta:
         verbose_name = "Izoh "
         verbose_name_plural = "Izohlar"
         ordering = ['-created_at']
     
+
+class EduInfo(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="edu_infos",
+    )
+    title = models.CharField(max_length=255, verbose_name="Sarlavha")
+    description = HTMLField(verbose_name="Tafsilot")
     
+    def __str__(self):
+        return self.title
+    
+    class Meta:
+        verbose_name = "Ta'limga oid ma'lumotlar "
+        verbose_name_plural = "Ta'limga oid ma'lumotlar"
+
+
+class SiteSettings(BaseModel):
+    school_life = models.CharField(max_length=500, verbose_name="Maktabimiz hayoti", null=True, blank=True)
+    directions = models.CharField(max_length=500, verbose_name="Bizning yo'nalishlar", null=True, blank=True)
+    numbers = models.CharField(max_length=500, verbose_name="Biz raqamlarda", null=True, blank=True)
+    teachers = models.CharField(max_length=500, verbose_name="Maktabimiz o'qituvchilari", null=True, blank=True)
+    honors = models.CharField(max_length=500, verbose_name="Maktabimiz faxrlari", null=True, blank=True)
+    news = models.CharField(max_length=500, verbose_name="Yangiliklar", null=True, blank=True)
+    gallery = models.CharField(max_length=500, verbose_name="Galereya", null=True, blank=True)
+    contact = models.CharField(max_length=500, verbose_name="Bog'lanish", null=True, blank=True)
+    comments = models.CharField(max_length=500, verbose_name="Mashxurlar biz haqimizda", null=True, blank=True)
+    faqs = models.CharField(max_length=500, verbose_name="Ko'p beriladigan savollar", null=True, blank=True)
+    leaders = models.CharField(max_length=500, verbose_name="Rahbariyat/Xodimlar/O'qituvchilar", null=True, blank=True)
+    vacancies = models.CharField(max_length=500, verbose_name="Bo'sh ish o'rinlari", null=True, blank=True)
+    documents = models.CharField(max_length=500, verbose_name="Hujjatlar", null=True, blank=True)
+    timetables = models.CharField(max_length=500, verbose_name="O'quv reja", null=True, blank=True)
+    edu_infos = models.CharField(max_length=500, verbose_name="Ta'limga oid ma'lumotlar", null=True, blank=True) 
+    events = models.CharField(max_length=500, verbose_name="Tadbirlar", null=True, blank=True)
+    resources = models.CharField(max_length=500, verbose_name="Resurslar", null=True, blank=True)
+    culture_services = models.CharField(max_length=500, verbose_name="Madaniy xizmatlar tavsifi", null=True, blank=True)
+    culture_arts = models.CharField(max_length=500, verbose_name="Madaniy san'at tavsifi", null=True, blank=True)
+    fine_arts = models.CharField(max_length=500, verbose_name="Tasviriy san'at tavsifi", null=True, blank=True)
+
+    def __str__(self):
+        return "Maktab text tavsilotlar"
+    
+    class Meta:
+        verbose_name = "Maktab text tavsilotlar"
+        verbose_name_plural = "Maktab text tavsilotlar"
 
 # Signal to create default instances when a new School is created
 @receiver(post_save, sender=School)

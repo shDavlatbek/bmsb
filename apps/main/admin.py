@@ -154,20 +154,34 @@ class DirectionSchoolForm(forms.ModelForm):
         if request and hasattr(request, 'user') and request.user.is_authenticated and not request.user.is_superuser:
             school = getattr(request.user, 'school', None)
             if school:
-                # IDs already chosen by *this* school
-                taken = models.DirectionSchool.objects.filter(
-                    school=school
-                ).values_list("direction_id", flat=True)
+                # Start with a base query for directions taken by the current school.
+                taken_qs = models.DirectionSchool.objects.filter(school=school)
+
+                # If editing an existing instance, exclude it from the "taken" list.
+                # This ensures the current direction remains in the dropdown.
+                if self.instance and self.instance.pk:
+                    taken_qs = taken_qs.exclude(pk=self.instance.pk)
+
+                taken_ids = taken_qs.values_list("direction_id", flat=True)
+
 
                 # Offer only directions that are *not* taken
                 if "direction" in self.fields:
-                    self.fields["direction"].queryset = models.Direction.objects.exclude(id__in=taken)
+                    self.fields["direction"].queryset = models.Direction.objects.exclude(id__in=taken_ids)
 
                 # School is implicit – hide the field and fix its value (if field exists)
                 if "school" in self.fields:
                     self.fields["school"].initial = school
                     self.fields["school"].widget = forms.HiddenInput()
             
+class DirectionImageInline(admin.TabularInline):
+    model = models.DirectionImage
+    extra = 0
+    
+
+class DirectionVideoInline(admin.TabularInline):
+    model = models.DirectionVideo
+    extra = 0
 
 @admin.register(models.DirectionSchool)
 class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
@@ -175,7 +189,7 @@ class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation)
     list_display = ("direction", "founded_year", "student_count", "is_active", "created_at")
     list_filter = ("is_active", "created_at")
     search_fields = ("direction__name", "description")
-
+    inlines = [DirectionImageInline, DirectionVideoInline]
     # inject `request` into the form so we can filter choices
     def get_form(self, request, obj=None, **kwargs):
         form_class = super().get_form(request, obj, **kwargs)
@@ -322,6 +336,39 @@ class HonorsAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
             return mark_safe(f'<img src="{obj.image.url}" style="height: 50px; width: 50px; object-fit: cover; border-radius: 4px;" />')
         return ""
     image_preview.short_description = "Rasm"
+
+
+@admin.register(models.EduInfo)
+class EduInfoAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('title', 'is_active')
+    search_fields = ('title', 'description')
+
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+
+
+@admin.register(models.SiteSettings)
+class SiteSettingsAdmin(AdminTranslation):
+    exclude = ('is_active',)
+    
+    def has_add_permission(self, request):
+        # Allow adding only if no instance exists
+        return not models.SiteSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        # Disallow deleting
+        return False
+        
+    def has_change_permission(self, request, obj=None):
+        # Allow changing only for superusers
+        return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        # Allow viewing only for superusers
+        return request.user.is_superuser
+    
+    def has_module_permission(self, request):
+        return request.user.is_superuser
 
 
 @admin.register(models.ContactForm)

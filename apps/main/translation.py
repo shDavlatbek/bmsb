@@ -1,5 +1,5 @@
 from modeltranslation.translator import translator, TranslationOptions
-from .models import School, Menu, Banner, SchoolLife, Direction, DirectionSchool, Subject, MusicalInstrument, TeacherExperience, FAQ, Vacancy, TimeTable, Document, DocumentCategory, Staff, Leader, Honors, HonorAchievements, Comments
+from .models import School, Menu, Banner, SchoolLife, Direction, DirectionSchool, Subject, MusicalInstrument, TeacherExperience, FAQ, Vacancy, TimeTable, Document, DocumentCategory, Staff, Leader, Honors, HonorAchievements, Comments, EduInfo, SiteSettings
 
 
 class MenuTranslationOptions(TranslationOptions):
@@ -97,6 +97,20 @@ class CommentsTranslationOptions(TranslationOptions):
     required_languages = ('uz',)
 
 
+class EduInfoTranslationOptions(TranslationOptions):
+    fields = ('title', 'description')
+    required_languages = ('uz',)
+
+class SiteSettingsTranslationOptions(TranslationOptions):
+    fields = (
+        'school_life', 'directions', 'numbers', 'teachers', 'honors', 'news', 
+        'gallery', 'contact', 'comments', 'faqs', 'leaders', 'vacancies', 
+        'documents', 'timetables', 'edu_infos', 'events', 'resources',
+        'culture_services', 'culture_arts', 'fine_arts'
+    )
+    required_languages = ('uz',)
+
+
 translator.register(School, SchoolTranslationOptions)
 translator.register(Menu, MenuTranslationOptions)
 translator.register(Banner, BannerTranslationOptions)
@@ -116,3 +130,5 @@ translator.register(Leader, LeaderTranslationOptions)
 translator.register(Honors, HonorsTranslationOptions)
 translator.register(HonorAchievements, HonorAchievementsTranslationOptions)
 translator.register(Comments, CommentsTranslationOptions)
+translator.register(EduInfo, EduInfoTranslationOptions)
+translator.register(SiteSettings, SiteSettingsTranslationOptions)
