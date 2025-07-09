@@ -38,5 +38,6 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} <<'EOF'
             cd ${{ secrets.PROJECT_PATH_DEV }}
             git pull origin dev
+            docker compose -f dev.yml down
             docker compose -f dev.yml up -d --build
           EOF
