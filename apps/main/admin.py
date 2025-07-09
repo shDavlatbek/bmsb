@@ -154,14 +154,20 @@ class DirectionSchoolForm(forms.ModelForm):
         if request and hasattr(request, 'user') and request.user.is_authenticated and not request.user.is_superuser:
             school = getattr(request.user, 'school', None)
             if school:
-                # IDs already chosen by *this* school
-                taken = models.DirectionSchool.objects.filter(
-                    school=school
-                ).values_list("direction_id", flat=True)
+                # Start with a base query for directions taken by the current school.
+                taken_qs = models.DirectionSchool.objects.filter(school=school)
+
+                # If editing an existing instance, exclude it from the "taken" list.
+                # This ensures the current direction remains in the dropdown.
+                if self.instance and self.instance.pk:
+                    taken_qs = taken_qs.exclude(pk=self.instance.pk)
+
+                taken_ids = taken_qs.values_list("direction_id", flat=True)
+
 
                 # Offer only directions that are *not* taken
                 if "direction" in self.fields:
-                    self.fields["direction"].queryset = models.Direction.objects.exclude(id__in=taken)
+                    self.fields["direction"].queryset = models.Direction.objects.exclude(id__in=taken_ids)
 
                 # School is implicit – hide the field and fix its value (if field exists)
                 if "school" in self.fields:

@@ -19,4 +19,5 @@ class DirectionDetailView(IsActiveFilterMixin, SchoolScopedMixin, generics.Retri
     )
     serializer_class = DirectionDetailSerializer
     lookup_field = 'direction__slug'
+    lookup_url_kwarg = 'slug'
     school_field = "school" 

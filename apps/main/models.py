@@ -187,6 +187,9 @@ class MusicalInstrument(SlugifyMixin, BaseModel):
         help_text="Rasm 5 MB dan katta bo'lishi mumkin emas."
     )
     
+    def __str__(self):
+        return self.name
+    
     class Meta:
         verbose_name = "Musiqa asbobi "
         verbose_name_plural = "Musiqa asboblari"
@@ -539,7 +542,7 @@ class DocumentCategory(SlugifyMixin, BaseModel):
         return self.name
     
     class Meta:
-        verbose_name = "Hujjat kategoriyasi"
+        verbose_name = "Hujjat kategoriyasi "
         verbose_name_plural = "Hujjat kategoriyalari"
         
         constraints = [
@@ -685,7 +688,7 @@ class Comments(BaseModel):
     comment = models.TextField(verbose_name="Izoh")
     
     def __str__(self):
-        return f"{self.full_name} - {self.created_at}"
+        return self.full_name
     
     class Meta:
         verbose_name = "Izoh "
