@@ -721,7 +721,24 @@ class Comments(BaseModel):
         verbose_name_plural = "Izohlar"
         ordering = ['-created_at']
     
+
+class EduInfo(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="edu_infos",
+    )
+    title = models.CharField(max_length=255, verbose_name="Sarlavha")
+    description = HTMLField(verbose_name="Tafsilot")
     
+    def __str__(self):
+        return self.title
+    
+    class Meta:
+        verbose_name = "Ta'limga oid ma'lumotlar "
+        verbose_name_plural = "Ta'limga oid ma'lumotlar"
+
 
 # Signal to create default instances when a new School is created
 @receiver(post_save, sender=School)

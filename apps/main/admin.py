@@ -338,6 +338,15 @@ class HonorsAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
     image_preview.short_description = "Rasm"
 
 
+@admin.register(models.EduInfo)
+class EduInfoAdmin(SchoolAdminMixin, AdminTranslation):
+    list_display = ('title', 'is_active')
+    search_fields = ('title', 'description')
+
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+
+
 @admin.register(models.ContactForm)
 class ContactFormAdmin(SchoolAdminMixin, admin.ModelAdmin):
     list_display = ('full_name', 'phone_number', 'created_at', 'is_active')

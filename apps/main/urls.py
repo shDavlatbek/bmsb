@@ -14,6 +14,7 @@ from .views.leader import LeaderListView, LeaderDetailView
 from .views.honor import HonorsListView, HonorsDetailView
 from .views.contact_form import ContactFormCreateView
 from .views.comments import CommentsListView, CommentsDetailView
+from .views.edu_info import EduInfoListView
 
 urlpatterns = [
     path('menus/', MenuView.as_view(), name='menu'),
@@ -59,6 +60,9 @@ urlpatterns = [
     # Comments endpoints
     path('comments/', CommentsListView.as_view(), name='comments-list'),
     path('comments/<int:id>/', CommentsDetailView.as_view(), name='comments-detail'),
+    
+    # EduInfo endpoint
+    path('edu-infos/', EduInfoListView.as_view(), name='edu-info-list'),
     
     # School check endpoint
     path('check-school/', CheckSchoolView.as_view(), name='check-school'),
