@@ -9,6 +9,7 @@ from . import models
 from django.utils.safestring import mark_safe
 from django import forms
 
+
 @admin.register(models.Menu)
 class MenuAdmin(SchoolAdminMixin, AdminTranslation, DraggableMPTTAdmin):
     class Media:
@@ -201,6 +202,7 @@ class DirectionSchoolForm(forms.ModelForm):
                     self.fields["school"].initial = school
                     self.fields["school"].widget = forms.HiddenInput()
             
+            
 class DirectionImageInline(admin.TabularInline):
     model = models.DirectionImage
     extra = 0
@@ -209,6 +211,7 @@ class DirectionImageInline(admin.TabularInline):
 class DirectionVideoInline(admin.TabularInline):
     model = models.DirectionVideo
     extra = 0
+
 
 @admin.register(models.DirectionSchool)
 class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
@@ -433,3 +436,18 @@ class CommentsAdmin(SchoolAdminMixin, AdminTranslation):
             return mark_safe(f'<img src="{obj.image.url}" style="height: 50px; width: 50px; object-fit: cover; border-radius: 4px;" />')
         return ""
     image_preview.short_description = "Rasm"
+
+
+@admin.register(models.EmailSubscription)
+class EmailSubscriptionAdmin(SchoolAdminMixin, admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser

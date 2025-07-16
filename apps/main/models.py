@@ -277,6 +277,14 @@ class DirectionSchool(BaseModel):
         on_delete=models.CASCADE,
     )
     
+    direction_image = models.ImageField(
+        upload_to=generate_upload_path,
+        verbose_name="Yo'nalish rasmi",
+        validators=[file_size],
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas.",
+        null=True, blank=True,
+    )
+    
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
     founded_year = models.SmallIntegerField(null=True, blank=True, verbose_name="Ishga tushgan yili")
     student_count = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'quvchilar soni")
@@ -330,6 +338,13 @@ class Teacher(SlugifyMixin, BaseModel):
         verbose_name="Yo'nalishlar",
         related_name="teachers",
         blank=True,
+    )
+    subject = models.ForeignKey(
+        Subject,
+        verbose_name="Dars o'tadigan Fan",
+        related_name="teachers",
+        on_delete=models.CASCADE,
+        null=True, blank=True,
     )
     experience_years = models.PositiveIntegerField(null=True, blank=True, verbose_name="Tajribasi", help_text="Yil")
     
@@ -397,7 +412,7 @@ class Vacancy(SlugifyMixin, BaseModel):
     slug = models.SlugField(verbose_name="Slug")
     description = models.TextField(verbose_name="Tafsilot")
     salary = models.CharField(max_length=255, verbose_name="Maosh", null=True, blank=True)
-    requirements = models.TextField(verbose_name="Talablar")
+    requirements = models.CharField(max_length=255, verbose_name="Talablar", null=True, blank=True)
     location = models.CharField(max_length=255, verbose_name="Joylashuv", null=True, blank=True)
     
     VACANCY_TYPES = [
@@ -738,6 +753,23 @@ class EduInfo(BaseModel):
     class Meta:
         verbose_name = "Ta'limga oid ma'lumotlar "
         verbose_name_plural = "Ta'limga oid ma'lumotlar"
+
+
+class EmailSubscription(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="email_subscriptions",
+    )
+    email = models.EmailField(verbose_name="Email")
+    
+    def __str__(self):
+        return self.email
+    
+    class Meta:
+        verbose_name = "Email obunachilar "
+        verbose_name_plural = "Email obunachilar"
 
 
 class SiteSettings(BaseModel):

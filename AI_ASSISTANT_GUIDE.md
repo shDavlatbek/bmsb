@@ -41,6 +41,7 @@
 - Create migrations: `python manage.py makemigrations`
 - Apply migrations: `python manage.py migrate`
 - Check system: `python manage.py check`
+- Populate SiteSettings: `python manage.py populate_site_settings`
 - Never specify migration names unless specifically requested
 
 ### **When User Asks for New Features:**
@@ -51,6 +52,13 @@
 5. Create complete implementation (model + admin + serializer + view + URL)
 6. **NEVER include school field in serializers** - it's handled automatically by security mixins
 7. **CHECK API DOCUMENTATION** - After implementing any API endpoints, check `/api/docs/` to ensure the custom Swagger documentation is up to date
+
+### **Development & Testing Guidelines:**
+- **AVOID EXCESSIVE TESTING**: Don't run multiple verification commands unless specifically requested
+- **Trust the patterns**: If following established patterns, extensive verification is usually unnecessary
+- **Focus on implementation**: Spend time on correct implementation rather than over-testing
+- **Use dry-run when available**: For commands like `populate_site_settings --dry-run`, this is sufficient verification
+- **Production commands**: Document usage but don't test every scenario during development
 
 ### **File Upload Handling:**
 - **File conflicts**: The `generate_upload_path` function in `apps/common/utils.py` automatically handles duplicate filenames by appending an 8-character UUID suffix
@@ -70,6 +78,7 @@
 - [Architecture Fundamentals](#-architecture-fundamentals) 
 - [Critical Rules & Patterns](#-critical-rules--patterns)
 - [Code Templates & Examples](#-code-templates--examples)
+- [Production Commands](#-production-commands)
 - [Common Tasks & Solutions](#-common-tasks--solutions)
 - [Testing & Debugging](#-testing--debugging)
 - [Troubleshooting Guide](#-troubleshooting-guide)
@@ -433,12 +442,13 @@ class ArticleAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
     search_fields = ('title', 'description')
     prepopulated_fields = {'slug': ('title',)}
 
-# Special Permissions Admin
+# Special Permissions Admin with SiteSettings Inline
 @admin.register(School)
 class SchoolAdmin(SchoolAdminMixin, AdminTranslation):
     list_display = ('name', 'domain', 'is_active')
     list_filter = ('is_active',)
     search_fields = ('name', 'domain')
+    inlines = [SiteSettingsInline]  # Include SiteSettings inline
     
     fieldsets = (
         ('Asosiy 📌', {
@@ -487,6 +497,83 @@ class YourModelWithRelationsSerializer(YourModelDetailSerializer):
     class Meta(YourModelDetailSerializer.Meta):
         fields = YourModelDetailSerializer.Meta.fields + ['related_items']
 ```
+
+---
+
+## 🚀 Production Commands
+
+### **SiteSettings Population Command**
+
+**Purpose**: Safely populate SiteSettings for schools that don't have them in production environments.
+
+**Command**: `python manage.py populate_site_settings`
+
+**Available Options:**
+```bash
+# Basic usage - creates SiteSettings for schools that don't have them
+python manage.py populate_site_settings
+
+# Dry run - shows what would be created without making changes
+python manage.py populate_site_settings --dry-run
+
+# Specific school - target a single school by ID
+python manage.py populate_site_settings --school-id 1
+
+# Force update - updates existing SiteSettings (use with caution)
+python manage.py populate_site_settings --force
+
+# Combine options
+python manage.py populate_site_settings --school-id 1 --dry-run --force
+```
+
+**Production Deployment Workflow:**
+```bash
+# 1. Always run migrations first
+python manage.py migrate
+
+# 2. Check for issues
+python manage.py check
+
+# 3. Dry run to see what will be created
+python manage.py populate_site_settings --dry-run
+
+# 4. Actually create the SiteSettings
+python manage.py populate_site_settings
+
+# 5. Collect static files (if needed)
+python manage.py collectstatic --noinput
+```
+
+**Safety Features:**
+- ✅ **Idempotent**: Safe to run multiple times
+- ✅ **Non-destructive**: Never overwrites existing data without `--force`
+- ✅ **Dry-run support**: Preview changes before applying
+- ✅ **Error handling**: Graceful failure with detailed error messages
+- ✅ **School-specific**: Can target individual schools
+- ✅ **Production-ready**: Includes proper logging and status messages
+
+**Example Output:**
+```
+Processing all schools (3 found)
+✔ School-A: Created SiteSettings (ID: 12)
+→ School-B: SiteSettings already exists (ID: 8) - skipped
+✔ School-C: Created SiteSettings (ID: 13)
+
+=== SUMMARY ===
+Created: 2
+Updated: 0
+Skipped: 1
+Total schools processed: 3
+
+✅ Operation completed successfully!
+```
+
+**⚠️ Important Notes for Production:**
+- Always use `--dry-run` first to preview changes
+- The `--force` flag should be used with extreme caution
+- Command is designed to be safe for production use
+- All created SiteSettings include default Uzbek text values
+- Each school gets its own isolated SiteSettings instance
 
 ---
 
@@ -1087,6 +1174,7 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 - `MediaImage`, `MediaVideo` - Child models, uniqueness handled at parent level
 - `TeacherExperience` - Child model of Teacher
 - `HonorAchievements` - Child model of Honors
+- `SiteSettings` - One per school, no additional constraints needed
 - `User` - User model, no uniqueness constraints needed
 - `DirectionSchool` - Relationship model
 - `Menu` - Removed constraints as requested (titles can be duplicate)
@@ -1289,6 +1377,7 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 
 #### **Main App (`/api/main/`):**
 - **POST** `/api/main/contact-forms/` - Aloqa so'rovlarini yaratish (Create contact requests)
+- **POST** `/api/main/email-subscription/` - Email obunasini yaratish (Create email subscription)
 - **GET** `/api/main/comments/` - Maktab izohlarini ko'rish (List school comments)  
 - **GET** `/api/main/comments/<id>/` - Izoh detallari (Get comment details)
 - **GET** `/api/main/directions/` - Maktab yo'nalishlarini ko'rish (List school directions)
@@ -1310,6 +1399,7 @@ class YourModelListView(IsActiveFilterMixin, SchoolScopedMixin, ListAPIView):
 - **GET** `/api/main/school-lifes/` - Maktab hayoti rasmlari (List school life images)
 - **GET** `/api/main/school/` - Maktab ma'lumotlari (Get school details)
 - **GET** `/api/main/menus/` - Maktab menyu tuzilmasi (Get school menu structure)
+- **GET** `/api/main/site-text/` - Maktab matn sozlamalari (Get school-specific site text settings)
 
 #### **News App (`/api/news/`):**
 - **GET** `/api/news/categories/` - Yangilik kategoriyalari (List news categories)
