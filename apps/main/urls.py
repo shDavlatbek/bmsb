@@ -16,6 +16,7 @@ from .views.contact_form import ContactFormCreateView
 from .views.comments import CommentsListView, CommentsDetailView
 from .views.edu_info import EduInfoListView
 from .views.site_settings import SiteSettingsView
+from .views.email_subscription import EmailSubscriptionCreateView
 
 urlpatterns = [
     path('menus/', MenuView.as_view(), name='menu'),
@@ -57,6 +58,9 @@ urlpatterns = [
     
     # ContactForm endpoints
     path('contact-forms/', ContactFormCreateView.as_view(), name='contact-form-create'),
+    
+    # Email subscription endpoints
+    path('email-subscription/', EmailSubscriptionCreateView.as_view(), name='email-subscription-create'),
     
     # Comments endpoints
     path('comments/', CommentsListView.as_view(), name='comments-list'),

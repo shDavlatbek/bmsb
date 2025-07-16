@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from apps.common.models import BaseModel
 from apps.common.mixins import SlugifyMixin
 from apps.common.utils import generate_upload_path
@@ -83,3 +85,17 @@ class News(SlugifyMixin, BaseModel):
                 name='unique_news_school_slug',
             )
         ]
+
+
+# Signal to send email notifications when news is created
+# @receiver(post_save, sender=News)
+# def send_news_email_notification(sender, instance, created, **kwargs):
+#     """
+#     Send email notification to subscribed users when news is created
+#     """
+#     if created and instance.school and instance.is_active:
+#         # Import here to avoid circular imports
+#         from apps.main.tasks import send_news_notification_email
+        
+#         # Send email notification asynchronously using Celery
+#         send_news_notification_email.delay(instance.id, instance.school.id)

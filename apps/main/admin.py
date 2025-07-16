@@ -2,12 +2,13 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from apps.common.mixins import DescriptionMixin, SchoolAdminMixin, AdminTranslation
 from mptt.admin import DraggableMPTTAdmin
-from modeltranslation.admin import TranslationTabularInline
+from modeltranslation.admin import TranslationTabularInline, TranslationStackedInline
 from modeltranslation import settings as mt_settings
 from django.utils.translation import gettext_lazy as _
 from . import models
 from django.utils.safestring import mark_safe
 from django import forms
+
 
 @admin.register(models.Menu)
 class MenuAdmin(SchoolAdminMixin, AdminTranslation, DraggableMPTTAdmin):
@@ -20,11 +21,45 @@ class MenuAdmin(SchoolAdminMixin, AdminTranslation, DraggableMPTTAdmin):
         return not request.user.is_superuser
 
 
+class SiteSettingsInline(TranslationStackedInline):
+    model = models.SiteSettings
+    extra = 0
+    max_num = 1  # Only one SiteSettings per school
+    can_delete = False
+    
+    fieldsets = (
+        ('Sahifa tavsiflar 📝', {
+            'fields': (
+                'school_life', 'directions', 'numbers', 'teachers', 'honors', 
+                'news', 'gallery', 'contact', 'comments', 'faqs'
+            )
+        }),
+        ('Boshqaruv bo\'limlari 🏢', {
+            'fields': ('leaders', 'vacancies', 'documents', 'timetables', 'edu_infos', 'events', 'resources')
+        }),
+        ('Xizmatlar 🎨', {
+            'fields': ('culture_services', 'culture_arts', 'fine_arts')
+        }),
+    )
+    
+    class Media:
+        js = (
+            "admin/js/jquery.init.js",
+            "modeltranslation/js/force_jquery.js",
+            mt_settings.JQUERY_UI_URL,
+            "modeltranslation/js/tabbed_translation_fields.js",
+        )
+        css = {
+            "all": ("modeltranslation/css/tabbed_translation_fields.css", "css/admin_translation.css",),
+        }
+
+
 @admin.register(models.School)
 class SchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
     list_display = ('name', 'domain', 'is_active')
     search_fields = ('name', 'domain')
     list_filter = ('is_active',)
+    inlines = [SiteSettingsInline]
     fieldsets = (
         ('Asosiy 📌',
             {'fields': ('is_active', 'domain', 'name', 'slug', 'description', 'short_description')}
@@ -48,13 +83,6 @@ class SchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        if request.user.is_superuser:
-            return True
-        if obj is None:
-            return True
-        return obj.pk == request.user.school_id
     
 
 @admin.register(models.Banner)
@@ -174,6 +202,7 @@ class DirectionSchoolForm(forms.ModelForm):
                     self.fields["school"].initial = school
                     self.fields["school"].widget = forms.HiddenInput()
             
+            
 class DirectionImageInline(admin.TabularInline):
     model = models.DirectionImage
     extra = 0
@@ -182,6 +211,7 @@ class DirectionImageInline(admin.TabularInline):
 class DirectionVideoInline(admin.TabularInline):
     model = models.DirectionVideo
     extra = 0
+
 
 @admin.register(models.DirectionSchool)
 class DirectionSchoolAdmin(DescriptionMixin, SchoolAdminMixin, AdminTranslation):
@@ -348,27 +378,27 @@ class EduInfoAdmin(SchoolAdminMixin, AdminTranslation):
 
 
 @admin.register(models.SiteSettings)
-class SiteSettingsAdmin(AdminTranslation):
+class SiteSettingsAdmin(SchoolAdminMixin, AdminTranslation):
     exclude = ('is_active',)
+    list_display = ('school', 'created_at')
+    
+    # Hide this from the admin menu since it's managed through SchoolAdmin inline
+    def has_module_permission(self, request):
+        return False  # Hide from admin menu - managed through School inline
     
     def has_add_permission(self, request):
-        # Allow adding only if no instance exists
-        return not models.SiteSettings.objects.exists()
-
+        return False  # Managed through School inline only
+    
     def has_delete_permission(self, request, obj=None):
-        # Disallow deleting
-        return False
+        return request.user.is_superuser  # Only superusers can delete
         
     def has_change_permission(self, request, obj=None):
-        # Allow changing only for superusers
-        return request.user.is_superuser
-
-    def has_view_permission(self, request, obj=None):
-        # Allow viewing only for superusers
-        return request.user.is_superuser
-    
-    def has_module_permission(self, request):
-        return request.user.is_superuser
+        # Allow school admins to change their own school's settings
+        if request.user.is_superuser:
+            return True
+        if obj and hasattr(request.user, 'school') and request.user.school:
+            return obj.school == request.user.school
+        return False
 
 
 @admin.register(models.ContactForm)
@@ -406,3 +436,18 @@ class CommentsAdmin(SchoolAdminMixin, AdminTranslation):
             return mark_safe(f'<img src="{obj.image.url}" style="height: 50px; width: 50px; object-fit: cover; border-radius: 4px;" />')
         return ""
     image_preview.short_description = "Rasm"
+
+
+@admin.register(models.EmailSubscription)
+class EmailSubscriptionAdmin(SchoolAdminMixin, admin.ModelAdmin):
+    def has_module_permission(self, request):
+        return not request.user.is_superuser
+    
+    def has_add_permission(self, request):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser

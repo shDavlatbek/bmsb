@@ -221,3 +221,35 @@ AUTH_GROUP_MODEL = 'auth.Group'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 NOT_ALLOWED_SUBDOMAINS = ['www', '', 'cdn', 'api', 'admin']
+
+
+#######################################################
+# --------------------- CELERY ---------------------- #
+#######################################################
+
+# Celery Configuration Options
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+
+#######################################################
+# --------------------- EMAIL ----------------------- #
+#######################################################
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env.str('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = env.int('EMAIL_PORT', 587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', True)
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', 'noreply@bmsb.uz')
+
+# For development, you can use console backend
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

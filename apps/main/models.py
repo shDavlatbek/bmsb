@@ -277,6 +277,14 @@ class DirectionSchool(BaseModel):
         on_delete=models.CASCADE,
     )
     
+    direction_image = models.ImageField(
+        upload_to=generate_upload_path,
+        verbose_name="Yo'nalish rasmi",
+        validators=[file_size],
+        help_text="Rasm 5 MB dan katta bo'lishi mumkin emas.",
+        null=True, blank=True,
+    )
+    
     description = HTMLField(null=True, blank=True, verbose_name="Tafsilot")
     founded_year = models.SmallIntegerField(null=True, blank=True, verbose_name="Ishga tushgan yili")
     student_count = models.PositiveIntegerField(null=True, blank=True, verbose_name="O'quvchilar soni")
@@ -330,6 +338,13 @@ class Teacher(SlugifyMixin, BaseModel):
         verbose_name="Yo'nalishlar",
         related_name="teachers",
         blank=True,
+    )
+    subject = models.ForeignKey(
+        Subject,
+        verbose_name="Dars o'tadigan Fan",
+        related_name="teachers",
+        on_delete=models.CASCADE,
+        null=True, blank=True,
     )
     experience_years = models.PositiveIntegerField(null=True, blank=True, verbose_name="Tajribasi", help_text="Yil")
     
@@ -397,7 +412,7 @@ class Vacancy(SlugifyMixin, BaseModel):
     slug = models.SlugField(verbose_name="Slug")
     description = models.TextField(verbose_name="Tafsilot")
     salary = models.CharField(max_length=255, verbose_name="Maosh", null=True, blank=True)
-    requirements = models.TextField(verbose_name="Talablar")
+    requirements = models.CharField(max_length=255, verbose_name="Talablar", null=True, blank=True)
     location = models.CharField(max_length=255, verbose_name="Joylashuv", null=True, blank=True)
     
     VACANCY_TYPES = [
@@ -740,7 +755,30 @@ class EduInfo(BaseModel):
         verbose_name_plural = "Ta'limga oid ma'lumotlar"
 
 
+class EmailSubscription(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="email_subscriptions",
+    )
+    email = models.EmailField(verbose_name="Email")
+    
+    def __str__(self):
+        return self.email
+    
+    class Meta:
+        verbose_name = "Email obunachilar "
+        verbose_name_plural = "Email obunachilar"
+
+
 class SiteSettings(BaseModel):
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        null=True, blank=True,
+        verbose_name="Maktab",
+        related_name="site_settings",
+    )
     school_life = models.CharField(max_length=500, verbose_name="Maktabimiz hayoti", null=True, blank=True)
     directions = models.CharField(max_length=500, verbose_name="Bizning yo'nalishlar", null=True, blank=True)
     numbers = models.CharField(max_length=500, verbose_name="Biz raqamlarda", null=True, blank=True)
@@ -896,3 +934,28 @@ def create_school_defaults(sender, instance, created, **kwargs):
                 title_ru=time_table['ru'],
                 title_en=time_table['en']
             )
+        
+        # Create default SiteSettings instance for the new school
+        SiteSettings.objects.create(
+            school=instance,
+            school_life="Maktabimiz hayoti haqida ma'lumot",
+            directions="Bizning yo'nalishlar haqida ma'lumot",
+            numbers="Maktab raqamlari haqida ma'lumot",
+            teachers="O'qituvchilarimiz haqida ma'lumot",
+            honors="Maktabimiz faxrlari haqida ma'lumot",
+            news="Yangiliklar bo'limi haqida ma'lumot",
+            gallery="Galereya bo'limi haqida ma'lumot",
+            contact="Bog'lanish bo'limi haqida ma'lumot",
+            comments="Izohlar bo'limi haqida ma'lumot",
+            faqs="Ko'p beriladigan savollar haqida ma'lumot",
+            leaders="Rahbariyat bo'limi haqida ma'lumot",
+            vacancies="Vakansiyalar bo'limi haqida ma'lumot",
+            documents="Hujjatlar bo'limi haqida ma'lumot",
+            timetables="O'quv reja bo'limi haqida ma'lumot",
+            edu_infos="Ta'lim ma'lumotlari bo'limi haqida ma'lumot",
+            events="Tadbirlar bo'limi haqida ma'lumot",
+            resources="Resurslar bo'limi haqida ma'lumot",
+            culture_services="Madaniy xizmatlar haqida ma'lumot",
+            culture_arts="Madaniy san'at haqida ma'lumot",
+            fine_arts="Tasviriy san'at haqida ma'lumot"
+        )

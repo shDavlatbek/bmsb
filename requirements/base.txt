@@ -24,3 +24,5 @@ urllib3==2.4.0
 idna==3.10
 certifi==2025.4.26
 charset-normalizer==3.4.2
+celery==5.4.0
+redis==5.2.1

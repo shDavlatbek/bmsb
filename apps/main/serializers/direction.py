@@ -18,10 +18,24 @@ class MusicalInstrumentSerializer(serializers.ModelSerializer):
 
 
 class TeacherBasicSerializer(serializers.ModelSerializer):
+    direction = serializers.SerializerMethodField()
+    subject = serializers.SerializerMethodField()
+    
     class Meta:
         model = Teacher
-        fields = ['id', 'full_name', 'slug', 'image', 'experience_years']
+        fields = ['id', 'full_name', 'slug', 'image', 'experience_years', 'direction', 'subject']
+    
+    def get_direction(self, obj):
+        first_direction = obj.directions.first()
+        if first_direction:
+            return first_direction.name
+        return None
 
+    def get_subject(self, obj):
+        if obj.subject:
+            return obj.subject.name
+        return None
+    
 
 class DirectionListSerializer(serializers.ModelSerializer):
     # Direction fields accessed through the direction relationship
@@ -32,7 +46,7 @@ class DirectionListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = DirectionSchool
-        fields = ['id', 'name', 'slug', 'icon', 'background_image', 'founded_year', 'student_count', 'teacher_count', 'created_at']
+        fields = ['id', 'name', 'slug', 'icon', 'background_image', 'direction_image', 'founded_year', 'student_count', 'teacher_count', 'created_at']
 
 
 class DirectionDetailSerializer(serializers.ModelSerializer):
@@ -54,7 +68,7 @@ class DirectionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = DirectionSchool
         fields = [
-            'id', 'name', 'slug', 'description', 'icon', 'background_image', 'founded_year', 
+            'id', 'name', 'slug', 'description', 'icon', 'background_image', 'direction_image', 'founded_year', 
             'student_count', 'teacher_count', 'subjects', 
             'musical_instruments', 'teachers', 'gallery_images', 'gallery_videos', 'created_at'
         ]
