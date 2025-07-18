@@ -253,3 +253,18 @@ DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', 'noreply@bmsb.uz')
 
 # For development, you can use console backend
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+#######################################################
+# --------------------- IMGPROXY -------------------- #
+#######################################################
+
+# Imgproxy Configuration
+IMGPROXY_ENABLED = env.bool('IMGPROXY_ENABLED', True)
+IMGPROXY_BASE_URL = env.str('IMGPROXY_BASE_URL', 'http://localhost:8080')
+IMGPROXY_KEY = env.str('IMGPROXY_KEY', '943b421c9eb07c830af81030552c86009268de4e532ba2ee2eab8247c6da0881')
+IMGPROXY_SALT = env.str('IMGPROXY_SALT', '520f986b998545b4785e0defbc4f3c1203f22de2374a3d53cb7a7fe9fea309c5')
+
+# Default image processing options
+IMGPROXY_DEFAULT_QUALITY = env.int('IMGPROXY_DEFAULT_QUALITY', 85)
+IMGPROXY_DEFAULT_FORMAT = env.str('IMGPROXY_DEFAULT_FORMAT', 'webp')  # webp, jpg, png, avif
+IMGPROXY_ENABLE_SMART_CROP = env.bool('IMGPROXY_ENABLE_SMART_CROP', True)

@@ -1,16 +1,23 @@
 from rest_framework import serializers
 from .models import MediaCollection, MediaImage, MediaVideo
+from apps.common.serializers import ImgproxyImageField, ResponsiveImageField, ImgproxySerializerMixin
 
 
 class MediaImageSerializer(serializers.ModelSerializer):
-    """Serializer for MediaImage model"""
+    """Serializer for MediaImage model with imgproxy optimization"""
+    
+    # Gallery thumbnail
+    image = ImgproxyImageField(preset='gallery_thumb')
+    
+    # Full responsive image data for lightbox/modal
+    full_image = ResponsiveImageField(source='image', read_only=True)
     
     class Meta:
         model = MediaImage
-        fields = ['id', 'image', 'show_in_main', 'created_at']
+        fields = ['id', 'image', 'full_image', 'show_in_main', 'created_at']
 
 
-class MediaCollectionListSerializer(serializers.ModelSerializer):
+class MediaCollectionListSerializer(ImgproxySerializerMixin, serializers.ModelSerializer):
     """
     Serializer for MediaCollection list view.
     Returns first show_in_main image or first image if no show_in_main exists.
@@ -24,7 +31,8 @@ class MediaCollectionListSerializer(serializers.ModelSerializer):
     
     def get_image(self, obj):
         """
-        Return first show_in_main image URL, otherwise first image URL, or None if no images.
+        Return first show_in_main image URL with imgproxy optimization, 
+        otherwise first image URL, or None if no images.
         """
         # Use the prefetched ordered_images from the view
         if hasattr(obj, 'ordered_images') and obj.ordered_images:
@@ -33,8 +41,13 @@ class MediaCollectionListSerializer(serializers.ModelSerializer):
             if first_image.image:
                 request = self.context.get('request')
                 if request:
-                    return request.build_absolute_uri(first_image.image.url)
-                return first_image.image.url
+                    url = request.build_absolute_uri(first_image.image.url)
+                else:
+                    url = first_image.image.url
+                
+                # Return imgproxy optimized URL
+                from apps.common.imgproxy import imgproxy_url
+                return imgproxy_url(url, preset='list_medium')
         return None
 
     def get_count(self, obj):
