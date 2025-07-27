@@ -12,7 +12,7 @@ Add to your `.env` file if you want to customize:
 
 ```bash
 # Optional - Customize allowed sources
-IMGPROXY_ALLOWED_SOURCES=cdn.lamenu.uz,localhost,127.0.0.1
+IMGPROXY_ALLOWED_SOURCES=cdn.e-bmsm.uz,localhost,127.0.0.1
 
 # Optional - Customize worker count for production
 IMGPROXY_WORKERS=4
@@ -39,7 +39,7 @@ Imgproxy will be available at:
 docker-compose exec web python manage.py test_imgproxy
 
 # Test with custom URL
-docker-compose exec web python manage.py test_imgproxy --url "https://cdn.lamenu.uz/image.jpg"
+docker-compose exec web python manage.py test_imgproxy --url "https://cdn.e-bmsm.uz/image.jpg"
 
 # Test with custom base URL (if proxied)
 docker-compose exec web python manage.py test_imgproxy --base-url "https://ipx.lamenu.uz"
@@ -235,6 +235,28 @@ proxy_cache_path /var/cache/nginx/imgproxy levels=1:2 keys_zone=imgproxy_cache:1
 
 ## 🐛 Troubleshooting
 
+### "Invalid signature" Error
+
+If you get "Invalid signature" error even with `/insecure` URLs:
+
+1. **Check Docker logs**:
+   ```bash
+   docker-compose logs imgproxy
+   ```
+
+2. **Ensure no signature keys are set**: The configuration should NOT include `IMGPROXY_KEY` or `IMGPROXY_SALT` environment variables. Their presence will force signature checking.
+
+3. **Restart the service**:
+   ```bash
+   docker-compose down
+   docker-compose -f dev.yml up imgproxy
+   ```
+
+4. **Test with a simple URL**:
+   ```bash
+   curl "http://localhost:8080/insecure/rs:fit:100:100:0/plain/https://cdn.e-bmsm.uz/your-image.jpg"
+   ```
+
 ### Service not starting
 ```bash
 # Check service status
@@ -265,7 +287,7 @@ curl http://localhost:8080/health
 
 Your example URL format:
 ```
-https://ipx.lamenu.uz/insecure/rs:fit:128:128:0/q:100/plain/https://cdn.lamenu.uz/files/photo/2e4d035f-3f18-4204-aeec-f175b5af3085/f1de160d-df1b-4c59-a1be-ca1f5805ba50.webp
+https://ipx.lamenu.uz/insecure/rs:fit:128:128:0/q:100/plain/https://cdn.e-bmsm.uz/files/photo/2e4d035f-3f18-4204-aeec-f175b5af3085/f1de160d-df1b-4c59-a1be-ca1f5805ba50.webp
 ```
 
 This creates a 128x128 fitted image with 100% quality from the source URL. 

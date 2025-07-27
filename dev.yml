@@ -19,8 +19,8 @@ services:
     image: darthsim/imgproxy:v3
     restart: always
     environment:
-      # Allow insecure URLs (no signature required)
-      - IMGPROXY_ALLOW_INSECURE=true
+      # Disable signature checking completely (no IMGPROXY_KEY or IMGPROXY_SALT)
+      # This enables true insecure mode
       
       # Automatic format detection
       - IMGPROXY_AUTO_WEBP=true
