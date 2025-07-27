@@ -34,7 +34,7 @@ services:
       
       # Security settings
       - IMGPROXY_MAX_SRC_FILE_SIZE=50000000  # 50MB max source file
-      - IMGPROXY_ALLOWED_SOURCES=cdn.lamenu.uz,localhost,127.0.0.1
+      - IMGPROXY_ALLOWED_SOURCES=cdn.e-bmsm.uz,localhost,127.0.0.1
       
       # Caching
       - IMGPROXY_CACHE_CONTROL_PASSTHROUGH=true
