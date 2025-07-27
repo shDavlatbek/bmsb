@@ -16,7 +16,7 @@ services:
       - "8020:8020"
 
   imgproxy:
-    image: darthsim/imgproxy:v3
+    image: ghcr.io/imgproxy/imgproxy:latest
     restart: always
     environment:
       # Disable signature checking completely (no IMGPROXY_KEY or IMGPROXY_SALT)
