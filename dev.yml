@@ -44,7 +44,7 @@ services:
       # Optional: Remove watermark
       - IMGPROXY_WATERMARK_OPACITY=0.0000001
     ports:
-      - "8080:8080"
+      - "8081:8080"
     volumes:
       - ./media:/usr/src/app/media:ro  # Read-only access to media files
 
