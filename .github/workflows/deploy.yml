@@ -22,20 +22,22 @@ jobs:
 
       # === MAIN branch deploy ===
       - name: Deploy prod
-        if: github.ref == 'refs/heads/main'
+        if: ${{ github.ref == 'refs/heads/main' }}
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} <<'EOF'
+          ssh -p ${{ secrets.SSH_PORT }} \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<'EOF'
             cd ${{ secrets.PROJECT_PATH }}
-            git pull
+            git pull origin main
             docker compose -f prod.yml down
             docker compose -f prod.yml up -d --build
           EOF
 
       # === DEV branch deploy ===
       - name: Deploy dev
-        if: github.ref == 'refs/heads/dev'
+        if: ${{ github.ref == 'refs/heads/dev' }}
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{ secrets.SSH_PORT }} <<'EOF'
+          ssh -p ${{ secrets.SSH_PORT }} \
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<'EOF'
             cd ${{ secrets.PROJECT_PATH_DEV }}
             git pull origin dev
             docker compose -f dev.yml down
