@@ -253,3 +253,11 @@ DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', 'noreply@bmsb.uz')
 
 # For development, you can use console backend
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+#######################################################
+# --------------------- IMGPROXY -------------------- #
+#######################################################
+
+# Imgproxy Configuration (Simple Setup)
+# The imgproxy service runs in insecure mode and frontend constructs URLs directly
+IMGPROXY_BASE_URL = env.str('IMGPROXY_BASE_URL', 'http://localhost:8080')

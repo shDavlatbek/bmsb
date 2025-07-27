@@ -35,6 +35,42 @@ services:
       timeout: 5s
       retries: 5
 
+  imgproxy:
+    image: ghcr.io/imgproxy/imgproxy:latest
+    container_name: bmsb-imgproxy
+    restart: always
+    environment:
+      # Disable signature checking completely (no IMGPROXY_KEY or IMGPROXY_SALT)
+      # This enables true insecure mode
+      
+      # Automatic format detection based on Accept header
+      - IMGPROXY_ENABLE_WEBP_DETECTION=true
+      - IMGPROXY_ENABLE_AVIF_DETECTION=true
+      
+      # Performance settings
+      - IMGPROXY_MAX_SRC_DIMENSION=8192
+      - IMGPROXY_QUALITY=85
+      - IMGPROXY_JPEG_PROGRESSIVE=true
+      - IMGPROXY_PNG_INTERLACED=true
+      
+      # Security settings  
+      - IMGPROXY_MAX_SRC_FILE_SIZE=50000000  # 50MB max source file
+      - IMGPROXY_ALLOWED_SOURCES=https://*.e-bmsm.uz/
+      
+      # Caching and performance
+      - IMGPROXY_CACHE_CONTROL_PASSTHROUGH=true
+      - IMGPROXY_USE_ETAG=true
+      - IMGPROXY_TTL=2592000  # 30 days cache
+      - IMGPROXY_GZIP_COMPRESSION=6
+      - IMGPROXY_WORKERS=${IMGPROXY_WORKERS:-4}
+      
+      # Remove watermark
+      - IMGPROXY_WATERMARK_OPACITY=0.0000001
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./media:/usr/src/app/media:ro  # Read-only access to media files
+
   # nginx:
   #   image: nginx:alpine
   #   restart: always
